@@ -1,13 +1,16 @@
 import crypto from "crypto";
 import { Server } from "socket.io";
+import { Player } from "./Player";
 
 export class GameManagerImpl implements GameManager {
   private values: number[] = [];
   private scores: Record<string, number> = {};
 
   private readonly code: string;
-  private players: string[] = [];
+  private players: Player[] = [];
   private owner?: string;
+
+  private started: boolean = false;
 
   constructor(
     private readonly gameSize: number,
@@ -21,17 +24,23 @@ export class GameManagerImpl implements GameManager {
   }
 
   addPlayer(player: string, owner?: PlayerFlag) {
-    if (this.players.includes(player)) {
+    if (this.started) {
+      return false;
+    }
+
+    if (this.players.filter((p) => p.name === player).length > 0) {
       return false;
     }
 
     if (owner === PlayerFlag.OWNER) {
       this.owner = player;
+      this.players.push(new Player(player, true));
+    } else {
+      this.players.push(new Player(player));
     }
 
-    this.players.push(player);
     this.scores[player] = 0;
-    this.io.to(this.code).emit("playerJoin", { players: this.players });
+    this.io.to(this.code).emit("playerUpdate", { players: this.players });
 
     return true;
   }
@@ -59,12 +68,29 @@ export class GameManagerImpl implements GameManager {
     return this.code;
   }
 
-  getPlayers(): string[] {
+  getPlayers(): Player[] {
     return this.players;
   }
 
   getScores(): Record<string, number> {
     return this.scores;
+  }
+
+  startGame(): void {
+    this.started = true;
+    this.io.to(this.code).emit("gameStarted", {
+      values: this.values,
+      players: this.players,
+    });
+  }
+
+  readyUp(player: string): void {
+    const playerObj = this.players.find((p) => p.name === player);
+    if (!playerObj) {
+      return;
+    }
+    playerObj.ready = true;
+    this.io.to(this.code).emit("playerUpdate", { players: this.players });
   }
 }
 
@@ -91,6 +117,8 @@ export interface GameManager {
   getGameState(): number[];
   addPlayer(player: string, owner?: PlayerFlag): boolean;
   getCode(): string;
-  getPlayers(): string[];
+  getPlayers(): Player[];
   getScores(): Record<string, number>;
+  startGame(): void;
+  readyUp(player: string): void;
 }

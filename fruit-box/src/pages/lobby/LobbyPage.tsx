@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState } from "react";
 import { NavFunction } from "../../App";
+import { Player } from "../../common/Player";
 import { useIO } from "../../hooks/useIO";
 import LobbyReady from "./LobbyReady";
 
@@ -17,7 +18,7 @@ interface Props {
 const LobbyPage: React.FC<Props> = ({ nav, setContext }) => {
   const io = useIO();
   const [lobbyCode, setLobbyCode] = useState<string>("");
-  const [players, setPlayers] = useState<string[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
 
   const [name, setName] = useState("");
   const [requestedCode, setRequestedCode] = useState("");
@@ -42,12 +43,12 @@ const LobbyPage: React.FC<Props> = ({ nav, setContext }) => {
     players,
   }: {
     code: string;
-    players: string[];
+    players: Player[];
   }) => {
     setLobbyCode(code);
     setPlayers(players);
 
-    io?.on("playerJoin", ({ players }) => {
+    io?.on("playerUpdate", ({ players }) => {
       setPlayers(players);
     });
 

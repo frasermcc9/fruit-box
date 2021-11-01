@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
-import { useIO } from "../../hooks/useIO";
+import React from "react";
+import { Player } from "../../common/Player";
+import { CheckCircleIcon, UserCircleIcon } from "@heroicons/react/outline";
 
 interface Props {
   code: string;
-  players: string[];
+  players: Player[];
   user: string;
   owner: boolean;
   handleStart: () => void;
@@ -18,8 +19,8 @@ const LobbyReady: React.FC<Props> = ({
   handleStart,
   handleReady,
 }) => {
-  const getDescriber = (player: string) => {
-    if (player === user) {
+  const getDescriber = (player: Player) => {
+    if (player.name === user) {
       return "You";
     }
   };
@@ -49,8 +50,15 @@ const LobbyReady: React.FC<Props> = ({
       </div>
       <div className="shadow-md rounded w-1/3 mx-auto divide-green-500 divide-y-2">
         {players.map((player) => (
-          <div key={player} className="p-4 px-8 flex justify-between">
-            <div className="font-semibold">{player}</div>
+          <div key={player.name} className="p-4 px-8 flex justify-between">
+            <div className="flex gap-x-4 items-center">
+              <div className="font-semibold">{player.name}</div>
+              {player.ready && (
+                <CheckCircleIcon className="w-6 text-green-500" />
+              )}
+              {player.host && <UserCircleIcon className="w-6 text-red-500" />}
+            </div>
+
             <div>{getDescriber(player)}</div>
           </div>
         ))}

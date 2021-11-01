@@ -55,7 +55,7 @@ export class IOSingleton {
       });
 
       socket.once("startGame", () => {
-        this.io.to(gameManager.getCode()).emit("gameStarted");
+        gameManager.startGame();
       });
     });
 
@@ -68,11 +68,16 @@ export class IOSingleton {
       const couldJoin = room.addPlayer(name);
       if (!couldJoin) {
         return socket.emit("roomJoinFail", {
-          reason: "Someone already has that name.",
+          reason: "Someone already has that name, or the game is started.",
         });
       }
 
       socket.join(room.getCode());
+
+      socket.once("readyUp", () => {
+        room.readyUp(name);
+      });
+
       socket.emit("gameJoined", {
         code: room.getCode(),
         players: room.getPlayers(),
@@ -81,6 +86,7 @@ export class IOSingleton {
 
     socket.on("gameRequest", async ({ code, name }) => {
       socket.removeAllListeners("gameResult");
+      socket.removeAllListeners("readyUp");
 
       this.ensureDependencies();
 
@@ -108,6 +114,8 @@ export class IOSingleton {
 
       socket.removeAllListeners("move").removeAllListeners("timeOver");
       socket.emit("gameResult", gameManager.getScores());
+
+      this.gameMap.delete(code);
     });
 
     socket.on("disconnect", () => {});
