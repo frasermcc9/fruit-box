@@ -5,23 +5,23 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useParams } from "react-router";
 import { SelectableGroup } from "react-selectable-fast";
 import { IOConsumer, IOContext, IOProvider } from "../../hooks/useIO";
 import arrayEquals from "../../utils/ArrayEquality";
 import Apple, { AppleProps } from "./Apple";
+import GenericBoard from "./board/GenericBoard";
 import LeaderBoard from "./Leaderboard";
 import ProgressBar from "./progress/ProgressBar";
 
 interface Props {
   goalValue?: number;
-  context: { playerId: string; gameId: string };
+  playerId: string;
 }
 
-const GamePage: React.FC<Props> = ({
-  goalValue = 10,
-  context: { gameId, playerId },
-}) => {
+const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
   const io = useContext(IOContext);
+  const { gameId } = useParams<{ gameId: string }>();
 
   const selectionRef = React.useRef<SelectableGroup>(null);
 
@@ -125,32 +125,16 @@ const GamePage: React.FC<Props> = ({
   };
 
   return (
-    <section className="my-24">
-      <div className="flex flex-row justify-center">
-        <div className="p-12 bg-green-400 rounded">
-          <SelectableGroup
-            disabled={!playing}
-            ref={selectionRef}
-            resetOnStart
-            onSelectionFinish={handleSelect}
-            tolerance={20}
-            duringSelection={handleDuring}
-          >
-            <div className="grid grid-cols-20 grid-rows-10 p-4 bg-gray-300">
-              {appleValues.map((value, key) => (
-                <Apple key={key} value={value} id={key} />
-              ))}
-            </div>
-          </SelectableGroup>
-        </div>
-      </div>
-      <div className="my-4" />
-      <div className="text-center text-4xl font-semibold">{score}</div>
-      <div className="my-4 mx-auto w-1/2">
-        <ProgressBar />
-      </div>
+    <GenericBoard
+      appleValues={appleValues}
+      handleDuring={handleDuring}
+      handleSelect={handleSelect}
+      playing={playing}
+      score={score}
+      selectionRef={selectionRef}
+    >
       <LeaderBoard scores={scores} />
-    </section>
+    </GenericBoard>
   );
 };
 
