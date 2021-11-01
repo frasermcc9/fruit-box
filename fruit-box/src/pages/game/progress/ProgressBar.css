@@ -1,0 +1,13 @@
+.progress {
+  animation: progressBar 120s linear;
+  animation-fill-mode: both;
+}
+
+@keyframes progressBar {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
