@@ -1,7 +1,7 @@
 module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   mode: "jit",
-  darkMode: false, // or 'media' or 'class'
+  darkMode: "media", // or 'media' or 'class'
   theme: {
     extend: {
       gridTemplateColumns: {
@@ -10,14 +10,20 @@ module.exports = {
       gridTemplateRows: {
         10: "repeat(10, 1fr)",
       },
+      colors: {
+        dark: {
+          400: "#3c3d42",
+          600: "#232526",
+          800: "#18191a",
+        },
+      },
     },
   },
-  variants: {
-    extend: {},
-  },
+  variants: {},
   plugins: [
     require("@tailwindcss/forms")({
       strategy: "class",
     }),
+    require("tailwindcss-textshadow"),
   ],
 };

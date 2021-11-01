@@ -30,14 +30,14 @@ const Apple: React.FC<AppleProps> = ({
 
   return (
     <div
-      className="w-20 h-20 p-1 flex justify-center items-center"
+      className="w-full h-full max-h-24 p-1 flex justify-center items-center"
       ref={selectableRef}
     >
       {value !== 0 && (
         <>
           <AppleImg
             ref={svg}
-            className="w-full h-full fill-current text-red-500"
+            className="w-full h-full fill-current text-red-500 dark:text-red-700"
           />
           <div className="absolute text-white font-bold text-3xl select-none mt-1">
             {value}
