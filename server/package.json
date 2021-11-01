@@ -8,7 +8,7 @@
     "ts:watch": "tsc --watch",
     "server:daemon": "nodemon",
     "build": "tsc",
-    "deploy": "cross-env NODE_ENV=production build && node ."
+    "deploy": "npm run build && cross-env NODE_ENV=production node ."
   },
   "keywords": [],
   "author": "",
