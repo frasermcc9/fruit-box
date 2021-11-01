@@ -6,7 +6,7 @@ interface Props {
 
 const LeaderBoard: React.FC<Props> = ({ scores }) => {
   return (
-    <div className="shadow-md max-w-xl mx-auto divide-y-2 divide-green-500">
+    <div className="shadow-md max-w-xl mx-auto divide-y-2 divide-green-500 dark:text-gray-100 dark:bg-dark-400 rounded">
       {Object.entries(scores)
         .sort(([_, score], [_2, score2]) => score2 - score)
         .map(([name, score]) => {

@@ -53,7 +53,7 @@ const LobbyReady: React.FC<Props> = ({
         <div className="font-bold text-xl">Code</div>
         <div className="text-4xl">{code}</div>
       </div>
-      <div className="shadow-md rounded w-1/3 mx-auto divide-green-500 divide-y-2">
+      <div className="shadow-md rounded w-1/3 mx-auto divide-green-500 divide-y-2 dark:bg-dark-400">
         {players.map((player) => (
           <div key={player.name} className="p-4 px-8 flex justify-between">
             <div className="flex gap-x-4 items-center">
