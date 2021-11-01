@@ -1,6 +1,7 @@
 import React from "react";
 import { Player } from "../../common/Player";
 import { CheckCircleIcon, UserCircleIcon } from "@heroicons/react/outline";
+import Countdown from "../game/Countdown";
 
 interface Props {
   code: string;
@@ -9,6 +10,7 @@ interface Props {
   owner: boolean;
   handleStart: () => void;
   handleReady: () => void;
+  showCountdown: boolean;
 }
 
 const LobbyReady: React.FC<Props> = ({
@@ -18,6 +20,7 @@ const LobbyReady: React.FC<Props> = ({
   owner,
   handleStart,
   handleReady,
+  showCountdown,
 }) => {
   const getDescriber = (player: Player) => {
     if (player.name === user) {
@@ -37,6 +40,8 @@ const LobbyReady: React.FC<Props> = ({
 
   return (
     <div className="flex flex-col gap-y-4 w-full items-center">
+      <Countdown showCountdown={showCountdown} />
+
       <button
         onClick={actionDispatcher}
         className="transition-all duration-300 w-32 text-xl text-white bg-green-400 p-3 font-semibold rounded-xl hover:bg-green-500 active:hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-auto"
