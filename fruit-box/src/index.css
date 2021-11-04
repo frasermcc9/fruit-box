@@ -13,8 +13,12 @@ code {
 }
 
 .selectable-selectbox {
-  border-color: rgba(9, 122, 235, 1);
-  border-width: 4px;
+  box-shadow: 0 0 1px 4px rgba(9, 122, 235, 1);
+  border-radius: 0.25rem;
+}
+
+.in-selection-mode > .selectable-selectbox {
+  box-shadow: none;
   border-radius: 0.25rem;
 }
 
