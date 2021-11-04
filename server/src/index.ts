@@ -1,9 +1,10 @@
 import cors from "cors";
 import express from "express";
 import { Server } from "socket.io";
-import { gameManagerFactory } from "./GameManager";
+import { gameManagerFactory } from "./GameManager/GameManager";
 import { IOSingleton } from "./IoSingleton";
 import Dotenv from "dotenv";
+import Log from "@frasermcc/log";
 
 Dotenv.config({
   path: `.env.${process.env.NODE_ENV}`,
@@ -29,3 +30,8 @@ const io = new Server(server, {
 
 IOSingleton.initialize(io);
 IOSingleton.getInstance().setGameManagerFactory(gameManagerFactory);
+
+process.on("uncaughtException", (e) => {
+  Log.error("Uncaught Exception:");
+  Log.error(e.message);
+});

@@ -1,6 +1,12 @@
+import Log from "@frasermcc/log";
 import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { GameManager, GameManagerFactory, PlayerFlag } from "./GameManager";
+import {
+  GameManager,
+  GameManagerFactory,
+  PlayerFlag,
+} from "./GameManager/GameManager";
+import { ControlledSettings } from "./GameManager/GameSettings";
 
 export class IOSingleton {
   private static instance: IOSingleton;
@@ -17,7 +23,7 @@ export class IOSingleton {
     >
   ) {
     this.io.on("connection", (socket) => {
-      console.log("New Connection!");
+      Log.info("A socket has connected.");
       this.onConnection(socket);
     });
   }
@@ -45,27 +51,46 @@ export class IOSingleton {
     socket.on("requestCreateGame", ({ name }) => {
       this.ensureDependencies();
       const gameManager = this.gameManagerFactory!(200, 10, this.io);
-      gameManager.addPlayer(name, PlayerFlag.OWNER);
+      gameManager.addOwner(name, socket);
 
       socket.join(gameManager.getCode());
       this.gameMap.set(gameManager.getCode(), gameManager);
+
+      socket.on(
+        "requestSettingsUpdate",
+        ({ settings }: { settings: ControlledSettings }) => {
+          gameManager.setSettings(settings);
+          this.io
+            .to(gameManager.getCode())
+            .emit("settingsUpdate", { settings });
+        }
+      );
+
       socket.emit("gameJoined", {
         code: gameManager.getCode(),
         players: gameManager.getPlayers(),
       });
 
-      socket.once("startGame", () => {
+      socket.once("startGame", ({ settings }) => {
+        socket.removeAllListeners("requestSettingsUpdate");
+        gameManager.setSettings(settings);
         gameManager.startGame();
+      });
+
+      socket.once("disconnect", () => {
+        gameManager.clear();
+        this.gameMap.delete(gameManager.getCode());
       });
     });
 
     socket.on("requestJoinGame", ({ code, name }) => {
+      Log.info(`${name} is joining ${code}`);
       this.ensureDependencies();
       const room = this.gameMap.get(code);
       if (!room) {
         return socket.emit("roomJoinFail", { reason: "Room does not exist." });
       }
-      const couldJoin = room.addPlayer(name);
+      const couldJoin = room.addPlayer(name, socket);
       if (!couldJoin) {
         return socket.emit("roomJoinFail", {
           reason: "Someone already has that name, or the game is started.",
@@ -74,7 +99,8 @@ export class IOSingleton {
 
       socket.join(room.getCode());
 
-      socket.once("readyUp", () => {
+      socket.on("readyUp", () => {
+        Log.trace(`${name} is ready up`);
         room.readyUp(name);
       });
 
@@ -82,12 +108,14 @@ export class IOSingleton {
         code: room.getCode(),
         players: room.getPlayers(),
       });
+
+      socket.once("disconnect", () => {
+        room.removePlayer(name);
+      });
     });
 
     socket.on("gameRequest", async ({ code, name }) => {
       socket.removeAllListeners("gameResult");
-      socket.removeAllListeners("readyUp");
-
       this.ensureDependencies();
 
       const gameManager = this.gameMap.get(code);
@@ -107,18 +135,22 @@ export class IOSingleton {
 
       socket.emit("gameResponse", gameManager.getGameState());
 
-      await Promise.race([
-        new Promise<void>((res) => socket.once("timeOver", () => res())),
-        new Promise<void>((res) => setTimeout(() => res(), 121 * 1000)),
-      ]);
+      socket.once("playAgain", () => {
+        socket.emit("gameReset", {
+          code: gameManager.getCode(),
+          players: gameManager.getPlayers(),
+        });
+      });
+
+      await new Promise<void>((res) => setTimeout(() => res(), 120 * 1000));
 
       socket.removeAllListeners("move").removeAllListeners("timeOver");
-      socket.emit("gameResult", gameManager.getScores());
-
-      this.gameMap.delete(code);
     });
 
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+      Log.info(`A socket has disconnected.`);
+      socket.removeAllListeners();
+    });
   }
 
   private ensureDependencies() {
