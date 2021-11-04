@@ -1,38 +1,65 @@
-import React, { useContext, useMemo, useState } from "react";
-import { useHistory } from "react-router";
+import React, { useEffect, useState } from "react";
+import { useHistory, useLocation, useParams } from "react-router";
 import { Player } from "../../common/Player";
 import { useIO } from "../../hooks/useIO";
+import useLobby from "../../hooks/useLobby";
+import { useLocalStorageOnLoad } from "../../hooks/useLocalStorage";
 import LobbyReady from "./LobbyReady";
 
-interface Props {
-  setName: (name: string) => void;
-  name: string;
-}
+interface Props {}
 
-const LobbyPage: React.FC<Props> = ({ setName, name }) => {
+const LobbyPage: React.FC<Props> = () => {
   const io = useIO();
-  const [lobbyCode, setLobbyCode] = useState<string>("");
-  const [players, setPlayers] = useState<Player[]>([]);
+  const { code, name, players, setLobbyContext, settings } = useLobby();
+  const history = useHistory();
+  const { search } = useLocation();
 
   const [requestedCode, setRequestedCode] = useState("");
-  const [isOwner, setOwner] = useState(false);
 
   const [showCountdown, setShowCountdown] = useState(false);
 
-  const history = useHistory();
+  const saveName = useLocalStorageOnLoad("username");
+
+  useEffect(() => {
+    if (code.length === 0) {
+      return;
+    }
+    handleJoinGame({
+      code,
+      players,
+    });
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const invite = params.get("invite");
+    if (invite) {
+      setRequestedCode(invite);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    io?.once("gameJoined", handleJoinGame);
+    io?.once("gameStarted", ({ players, settings }) => {
+      setShowCountdown(true);
+      setLobbyContext((old) => ({ ...old, players, settings }));
+      io?.removeAllListeners("playerUpdate");
+      setTimeout(() => {
+        history.push(`/game/${code}`);
+      }, 5000);
+    });
+    return () => {
+      io?.off("gameJoined", handleJoinGame);
+      io?.removeAllListeners("gameStarted");
+    };
+  }, [io, code]);
 
   const requestCreateGame = () => {
-    io?.emit("requestCreateGame", { name }).once("gameJoined", (args) => {
-      setOwner(true);
-      handleJoinGame(args);
-    });
+    io?.emit("requestCreateGame", { name });
   };
 
-  const requestJoinGame = () => {
-    io?.emit("requestJoinGame", { name, code: requestedCode }).once(
-      "gameJoined",
-      handleJoinGame
-    );
+  const requestJoinGame = (code?: string) => {
+    io?.emit("requestJoinGame", { name, code: code ?? requestedCode });
   };
 
   const handleJoinGame = ({
@@ -42,25 +69,15 @@ const LobbyPage: React.FC<Props> = ({ setName, name }) => {
     code: string;
     players: Player[];
   }) => {
-    setLobbyCode(code);
-    setPlayers(players);
+    setLobbyContext((old) => ({ ...old, code, players }));
 
     io?.on("playerUpdate", ({ players }) => {
-      setPlayers(players);
-    });
-
-    io?.once("gameStarted", () => {
-      setShowCountdown(true);
-      setName(name);
-      io.removeAllListeners("playerUpdate");
-      setTimeout(() => {
-        history.push(`/game/${code}`);
-      }, 5000);
+      setLobbyContext((old) => ({ ...old, players }));
     });
   };
 
   const startGame = () => {
-    io?.emit("startGame");
+    io?.emit("startGame", { settings });
   };
 
   const readyUp = () => {
@@ -70,7 +87,7 @@ const LobbyPage: React.FC<Props> = ({ setName, name }) => {
   return (
     <div className="flex flex-col justify-center h-screen items-center gap-y-8 dark:text-gray-100">
       <div className="font-bold text-4xl">Welcome to the Lobby</div>
-      {lobbyCode === "" ? (
+      {code === "" ? (
         <div className="flex flex-col">
           <div className="border dark:border-dark-400 shadow p-4 rounded">
             <h1 className="text-center font-bold mb-6 text-xl">Multiplayer</h1>
@@ -79,7 +96,10 @@ const LobbyPage: React.FC<Props> = ({ setName, name }) => {
               className="form-input font-semibold w-full text-lg rounded transition-all outline-none focus:outline-none focus:border-green-500 border-2 focus:ring-0 mb-12 dark:bg-dark-600"
               placeholder="Your nickname"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                saveName(e.target.value);
+                setLobbyContext((old) => ({ ...old, name: e.target.value }));
+              }}
             />
             <div className="flex flex-col gap-y-6">
               <button
@@ -98,7 +118,7 @@ const LobbyPage: React.FC<Props> = ({ setName, name }) => {
                   onChange={(e) => setRequestedCode(e.target.value)}
                 />
                 <button
-                  onClick={requestJoinGame}
+                  onClick={() => requestJoinGame()}
                   className="transition-all duration-300 w-32 text-xl text-white bg-green-400 p-3 font-semibold rounded-xl hover:bg-green-500 active:hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-auto"
                   disabled={name.length === 0}
                 >
@@ -116,10 +136,10 @@ const LobbyPage: React.FC<Props> = ({ setName, name }) => {
         </div>
       ) : (
         <LobbyReady
-          code={lobbyCode}
+          code={code}
           players={players}
           user={name}
-          owner={isOwner}
+          owner={players.find((p) => p.name === name)?.host ?? false}
           handleStart={startGame}
           handleReady={readyUp}
           showCountdown={showCountdown}
