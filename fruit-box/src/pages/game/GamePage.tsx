@@ -1,26 +1,28 @@
-import React, {
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
-import { useParams } from "react-router";
+import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import { useHistory, useParams } from "react-router";
 import { SelectableGroup } from "react-selectable-fast";
-import { IOConsumer, IOContext, IOProvider } from "../../hooks/useIO";
+import { IOContext, useIO } from "../../hooks/useIO";
 import arrayEquals from "../../utils/ArrayEquality";
-import Apple, { AppleProps } from "./Apple";
+import { AppleProps } from "./Apple";
 import GenericBoard from "./board/GenericBoard";
 import LeaderBoard from "./Leaderboard";
-import ProgressBar from "./progress/ProgressBar";
+import pop from "../../res/sfx/pop.mp3";
+import useSound from "use-sound";
+import GameOverModal from "./GameOverModal";
+import useLobby from "../../hooks/useLobby";
+import { ControlledSettings } from "../../common/ControlledSettings";
+import { settings } from "cluster";
 
 interface Props {
   goalValue?: number;
-  playerId: string;
 }
 
-const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
-  const io = useContext(IOContext);
+const GamePage: React.FC<Props> = ({ goalValue = 10 }) => {
+  const io = useIO();
+  const { name, settings, setLobbyContext } = useLobby();
+
+  const history = useHistory();
+
   const { gameId } = useParams<{ gameId: string }>();
 
   const selectionRef = React.useRef<SelectableGroup>(null);
@@ -35,20 +37,27 @@ const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
   useEffect(() => {
     if (!gameId) return;
 
-    io?.emit("gameRequest", { code: gameId, name: playerId }).once(
+    io?.emit("gameRequest", { code: gameId, name }).once(
       "gameResponse",
       (res: number[]) => {
         setAppleValues(res);
       }
     );
 
-    const timeout = setTimeout(() => {
-      setPlaying(false);
-    }, 120 * 1000);
+    io?.once("gameReset", (args) => {
+      setLobbyContext((old) => ({ ...old, code: args.code }));
+      history.push("/");
+    });
+
     return () => {
-      clearTimeout(timeout);
+      io?.removeAllListeners("gameReset");
+      io?.removeAllListeners("gameResponse");
     };
-  }, [io, gameId, playerId]);
+  }, [io, gameId, name, history, setLobbyContext]);
+
+  const [playPop] = useSound(pop, {
+    volume: 0.25,
+  });
 
   useEffect(() => {
     io?.on(
@@ -59,8 +68,8 @@ const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
           setAppleValues(values);
         }
         setScores(newScores);
-        if (newScores[playerId] !== score) {
-          setScore(newScores[playerId]);
+        if (newScores[name] !== score) {
+          setScore(newScores[name]);
         }
       }
     );
@@ -68,14 +77,13 @@ const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
     return () => {
       io?.removeAllListeners("moveResult");
     };
-  }, [appleValues, io, playerId, score]);
+  }, [appleValues, io, name, score]);
 
   useEffect(() => {
-    if (!playing) {
-      io?.emit("timeOver").once("gameResult", (result) => {
-        console.log(result);
-      });
-    }
+    io?.once("gameResult", (result) => {
+      setPlaying(false);
+      setScores(result);
+    });
   }, [playing, io]);
 
   const handleSelect = (selected: React.Component<AppleProps>[]) => {
@@ -96,6 +104,7 @@ const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
       io?.emit("move", ids);
       setAppleValues(newValues);
       setScore(score + ids.length);
+      playPop();
     }
   };
 
@@ -124,17 +133,27 @@ const GamePage: React.FC<Props> = ({ goalValue = 10, playerId }) => {
     }
   };
 
+  const playAgainDispatch = () => {
+    io?.emit("playAgain");
+  };
+
   return (
-    <GenericBoard
-      appleValues={appleValues}
-      handleDuring={handleDuring}
-      handleSelect={handleSelect}
-      playing={playing}
-      score={score}
-      selectionRef={selectionRef}
-    >
-      <LeaderBoard scores={scores} />
-    </GenericBoard>
+    <>
+      <GenericBoard
+        appleValues={appleValues}
+        handleDuring={handleDuring}
+        handleSelect={handleSelect}
+        playing={playing}
+        score={score}
+        selectionRef={selectionRef}
+        duration={settings.gameDuration}
+      >
+        <LeaderBoard scores={scores} />
+      </GenericBoard>
+      {playing || (
+        <GameOverModal scores={scores} playAgain={playAgainDispatch} />
+      )}
+    </>
   );
 };
 

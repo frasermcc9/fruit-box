@@ -1,22 +1,29 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { SelectableGroup } from "react-selectable-fast";
-import Apple, { AppleProps } from "../Apple";
+import useSound from "use-sound";
+import { AppleProps } from "../Apple";
 import GenericBoard from "../board/GenericBoard";
-import ProgressBar from "../progress/ProgressBar";
+import QuickPlayOver from "./QuickPlayOver";
+import pop from "../../../res/sfx/pop.mp3";
 
 interface Props {
   goalValue?: number;
+  appleCount?: number;
 }
 
-const QuickPlayPage: React.FC<Props> = ({ goalValue = 10 }) => {
+const QuickPlayPage: React.FC<Props> = ({
+  goalValue = 10,
+  appleCount = 170,
+}) => {
   const selectionRef = React.useRef<SelectableGroup>(null);
 
-  const [appleValues, setAppleValues] = useState<number[]>(() => {
-    return Array.from(
-      { length: 200 },
+  const calcApples = () =>
+    Array.from(
+      { length: appleCount },
       (_) => 1 + ~~(Math.random() * (goalValue - 1))
     );
-  });
+
+  const [appleValues, setAppleValues] = useState<number[]>(calcApples);
 
   const [score, setScore] = useState(0);
 
@@ -30,6 +37,10 @@ const QuickPlayPage: React.FC<Props> = ({ goalValue = 10 }) => {
       clearTimeout(timeout);
     };
   }, []);
+
+  const [playPop] = useSound(pop, {
+    volume: 0.25,
+  });
 
   const handleSelect = (selected: React.Component<AppleProps>[]) => {
     const total = selected.reduce(
@@ -48,6 +59,7 @@ const QuickPlayPage: React.FC<Props> = ({ goalValue = 10 }) => {
 
       setAppleValues(newValues);
       setScore(score + ids.length);
+      playPop();
     }
   };
 
@@ -76,15 +88,28 @@ const QuickPlayPage: React.FC<Props> = ({ goalValue = 10 }) => {
     }
   };
 
+  const resetGame = () => {
+    // setAppleValues(calcApples());
+    // setScore(0);
+    // setPlaying(true);
+    window.location.reload();
+  };
+
   return (
-    <GenericBoard
-      appleValues={appleValues}
-      handleDuring={handleDuring}
-      handleSelect={handleSelect}
-      playing={playing}
-      score={score}
-      selectionRef={selectionRef}
-    />
+    <>
+      <GenericBoard
+        appleValues={appleValues}
+        handleDuring={handleDuring}
+        handleSelect={handleSelect}
+        playing={playing}
+        score={score}
+        selectionRef={selectionRef}
+        cols={17}
+        rows={10}
+        duration={120}
+      />
+      {playing || <QuickPlayOver score={score} reset={resetGame} />}
+    </>
   );
 };
 
