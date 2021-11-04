@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SelectableGroup } from "react-selectable-fast";
 import Apple from "../Apple";
 import ProgressBar from "../progress/ProgressBar";
+import song from "../../../res/song.mp3";
+import useSound from "use-sound";
 
 interface Props {
   score: number;
@@ -10,6 +12,9 @@ interface Props {
   handleSelect: (e: any) => void;
   selectionRef: any;
   appleValues: number[];
+  rows?: number;
+  cols?: number;
+  duration: number;
 }
 
 const GenericBoard: React.FC<Props> = ({
@@ -20,7 +25,22 @@ const GenericBoard: React.FC<Props> = ({
   selectionRef,
   handleSelect,
   children,
+  duration,
+  cols = 20,
+  rows = 10,
 }) => {
+  const [play, { stop }] = useSound(song, {
+    volume: 0.15,
+    interrupt: true,
+  });
+
+  useEffect(() => {
+    play();
+    return () => {
+      stop();
+    };
+  }, [play, stop]);
+
   return (
     <>
       <section className="lg:my-24 my-0 max-w-7xl mx-auto flex flex-row gap-x-4">
@@ -37,7 +57,13 @@ const GenericBoard: React.FC<Props> = ({
               tolerance={20}
               duringSelection={handleDuring}
             >
-              <div className="grid grid-cols-20 grid-rows-10 p-4 bg-gray-300 dark:bg-dark-400 rounded">
+              <div
+                style={{
+                  gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                  gridTemplateRows: `repeat(${rows}, 1fr)`,
+                }}
+                className="grid p-4 bg-gray-300 dark:bg-dark-400 rounded"
+              >
                 {appleValues.map((value, key) => (
                   <Apple key={key} value={value} id={key} />
                 ))}
@@ -46,7 +72,7 @@ const GenericBoard: React.FC<Props> = ({
           </div>
         </div>
         <div className="flex-grow w-12">
-          <ProgressBar />
+          <ProgressBar duration={duration} />
         </div>
       </section>
       {children}

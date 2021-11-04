@@ -1,6 +1,7 @@
 .progress {
-  animation: progressBar 120s linear;
+  animation: progressBar linear;
   animation-fill-mode: both;
+  animation-duration: 120s;
 }
 
 @keyframes progressBar {
