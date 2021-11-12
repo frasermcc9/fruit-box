@@ -1,12 +1,14 @@
 import Log from "@frasermcc/log";
 import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import GlobalCollection from "./db/models/global/GlobalCollection";
 import {
   GameManager,
   GameManagerFactory,
   PlayerFlag,
 } from "./GameManager/GameManager";
 import { ControlledSettings } from "./GameManager/GameSettings";
+import { User } from "./types/User";
 
 export class IOSingleton {
   private static instance: IOSingleton;
@@ -14,6 +16,8 @@ export class IOSingleton {
   private gameManagerFactory?: GameManagerFactory;
 
   private gameMap: Map<string, GameManager> = new Map();
+
+  private socketMap: Map<Socket, User> = new Map();
 
   private constructor(
     private readonly io: Server<
@@ -48,6 +52,8 @@ export class IOSingleton {
   private onConnection(
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>
   ) {
+    this.socketMap.set(socket, { startTime: new Date() });
+
     socket.on("requestCreateGame", ({ name }) => {
       this.ensureDependencies();
       const gameManager = this.gameManagerFactory!(200, 10, this.io);
@@ -147,9 +153,28 @@ export class IOSingleton {
       socket.removeAllListeners("move").removeAllListeners("timeOver");
     });
 
-    socket.on("disconnect", () => {
-      Log.info(`A socket has disconnected.`);
+    socket.on("quickplayOver", async () => {
+      await (await GlobalCollection.getCollection()).addSeconds(120);
+    });
+
+    socket.on("quickplaySubmission", async ({ mode, score, name }) => {
+      Log.info(`${name} submitted a quickplay score of ${score}.`);
+      (await GlobalCollection.getCollection()).addSubmission({
+        board: mode,
+        name,
+        score,
+      });
+    });
+
+    socket.on("disconnect", async () => {
       socket.removeAllListeners();
+
+      const start = this.socketMap.get(socket)?.startTime;
+      const end = new Date();
+      const duration = (end.getTime() - start!.getTime()) / 1000;
+      Log.info(`A socket has disconnected after ${duration} seconds.`);
+
+      this.socketMap.delete(socket);
     });
   }
 

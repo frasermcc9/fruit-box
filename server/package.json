@@ -14,10 +14,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@frasermcc/log": "^1.0.0",
+    "@frasermcc/log": "^2.0.2",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "mongoose": "^6.0.12",
     "socket.io": "^4.3.1"
   },
   "devDependencies": {

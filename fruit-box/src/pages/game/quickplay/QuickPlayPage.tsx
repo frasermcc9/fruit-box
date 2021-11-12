@@ -35,7 +35,7 @@ const QuickPlayPage: React.FC<Props> = ({
   const classic = useMemo(() => {
     const params = new URLSearchParams(search);
     const value = params.get("classic");
-    return JSON.parse(value as string);
+    return JSON.parse(value as string) as boolean;
   }, [search]);
 
   const selectionRef = React.useRef<SelectableGroup>(null);
@@ -185,7 +185,13 @@ const QuickPlayPage: React.FC<Props> = ({
           </>
         }
       />
-      {playing || <QuickPlayOver score={score} reset={resetGame} />}
+      {playing || (
+        <QuickPlayOver
+          score={score}
+          reset={resetGame}
+          mode={classic ? "classic" : "blitz"}
+        />
+      )}
     </>
   );
 };

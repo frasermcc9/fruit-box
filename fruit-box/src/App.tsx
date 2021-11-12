@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/outline";
 import HelpPage from "./pages/tutorial/HelpPage";
 import HeaderButtons from "./global/HeaderButtons";
+import StatsPage from "./pages/stats/StatsPage";
 
 const App: React.FC = () => {
   const endpoint = process.env.REACT_APP_ENDPOINT;
@@ -53,7 +54,7 @@ const App: React.FC = () => {
   });
 
   return (
-    <div className="dark:text-gray-100 text-gray-900">
+    <div className="dark:text-gray-100 text-gray-800">
       <IOProvider value={socket}>
         <LobbyContext.Provider value={{ ...lobbyContext, setLobbyContext }}>
           <CornerAlertManager>
@@ -68,6 +69,9 @@ const App: React.FC = () => {
                 </Route>
                 <Route path="/tutorial">
                   <HelpPage />
+                </Route>
+                <Route path="/stats">
+                  <StatsPage />
                 </Route>
                 <Route path="/">
                   <LobbyPage />

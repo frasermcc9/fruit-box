@@ -5,17 +5,23 @@ import { gameManagerFactory } from "./GameManager/GameManager";
 import { IOSingleton } from "./IoSingleton";
 import Dotenv from "dotenv";
 import Log from "@frasermcc/log";
+import { connect } from "./db/Connect";
+import { initiateRoutes } from "./routes";
 
 Dotenv.config({
   path: `.env.${process.env.NODE_ENV}`,
 });
 const port = process.env.PORT;
 
+connect();
+
 const app = express();
 app.use(cors());
 
+initiateRoutes(app);
+
 const server = app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  Log.info(`Server is running on port ${port}`);
 });
 
 const io = new Server(server, {

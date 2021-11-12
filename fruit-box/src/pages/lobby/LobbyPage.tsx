@@ -86,7 +86,7 @@ const LobbyPage: React.FC<Props> = () => {
 
   return (
     <>
-      <div className="flex flex-col justify-center mt-8 md:h-screen md:mt-0 items-center gap-y-8 dark:text-gray-100">
+      <div className="flex flex-col justify-center mt-8 md:h-screen md:mt-0 items-center gap-y-8 dark:text-gray-100 mb-10 md:mb-0">
         <div className="font-bold md:text-4xl text-2xl text-center">
           Welcome to the Lobby
         </div>
