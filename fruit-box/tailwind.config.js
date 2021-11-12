@@ -17,6 +17,9 @@ module.exports = {
           800: "#18191a",
         },
       },
+      screens: {
+        xs: "480px",
+      },
     },
   },
   variants: {},

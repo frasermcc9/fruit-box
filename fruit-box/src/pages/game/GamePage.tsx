@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useHistory, useParams } from "react-router";
 import { SelectableGroup } from "react-selectable-fast";
-import { IOContext, useIO } from "../../hooks/useIO";
+import { useIO } from "../../hooks/useIO";
 import arrayEquals from "../../utils/ArrayEquality";
 import { AppleProps } from "./Apple";
 import GenericBoard from "./board/GenericBoard";
@@ -10,8 +10,6 @@ import pop from "../../res/sfx/pop.mp3";
 import useSound from "use-sound";
 import GameOverModal from "./GameOverModal";
 import useLobby from "../../hooks/useLobby";
-import { ControlledSettings } from "../../common/ControlledSettings";
-import { settings } from "cluster";
 
 interface Props {
   goalValue?: number;

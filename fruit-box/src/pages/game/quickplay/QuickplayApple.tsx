@@ -1,25 +1,19 @@
 import React, { useEffect, useRef } from "react";
-import { ReactComponent as AppleImg } from "../../res/apple.svg";
-import { ReactComponent as AmongUsImg } from "../../res/amogus.svg";
+import { ReactComponent as AppleImg } from "../../../res/apple.svg";
 import { TSelectableItemProps, createSelectable } from "react-selectable-fast";
+import { Entity } from "./modifier";
 
 interface BaseProps {
-  value: number;
-  id: number;
-  color?: string;
-  displayOverride?: string;
+  apple: Entity;
 }
 
-type AppleProps = TSelectableItemProps & BaseProps;
+type QuickplayAppleProps = TSelectableItemProps & BaseProps;
 
-const Apple: React.FC<AppleProps> = ({
-  value,
+const QuickplayApple: React.FC<QuickplayAppleProps> = ({
+  apple,
   isSelected,
   isSelecting,
   selectableRef,
-  id,
-  color = "text-red-500 dark:text-red-700",
-  displayOverride,
 }) => {
   const svg = useRef<SVGSVGElement>(null);
 
@@ -32,19 +26,21 @@ const Apple: React.FC<AppleProps> = ({
     }
   }, [isSelecting]);
 
+  const displayOverride = apple.getTextOverride();
+
   return (
     <div
       className="w-full h-full max-h-24 md:p-1 p-[1px] flex justify-center items-center"
       ref={selectableRef}
     >
-      {value !== 0 && (
+      {apple.isVisible() && (
         <>
           <AppleImg
             ref={svg}
-            className={`w-full h-full fill-current ${color}`}
+            className={`w-full h-full fill-current ${apple.getColor()}`}
           />
           <div className="absolute text-white font-bold text-xl sm:text-3xl select-none sm:mt-1 mt-[2px]">
-            {displayOverride ? displayOverride : value}
+            {displayOverride ? displayOverride : apple.getBaseValue()}
           </div>
         </>
       )}
@@ -52,7 +48,7 @@ const Apple: React.FC<AppleProps> = ({
   );
 };
 
-const SelectableApple = createSelectable(Apple);
+const SelectableQuickplayApple = createSelectable(QuickplayApple);
 
-export default SelectableApple;
-export type { AppleProps };
+export default SelectableQuickplayApple;
+export type { QuickplayAppleProps };

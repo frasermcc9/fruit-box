@@ -5,9 +5,9 @@ import { IOProvider, useIOInitializer } from "./hooks/useIO";
 import LobbyPage from "./pages/lobby/LobbyPage";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import QuickPlayPage from "./pages/game/quickplay/QuickPlayPage";
-import { Lobby, LobbyContext } from "./hooks/useLobby";
 import { CornerAlertManager } from "./pages/components/alert/CornerAlert";
 import { useLocalStorageOnLoad } from "./hooks/useLocalStorage";
+import { Lobby, LobbyContext } from "./hooks/useLobby";
 
 const App: React.FC = () => {
   const endpoint = process.env.REACT_APP_ENDPOINT;

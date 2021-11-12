@@ -107,7 +107,7 @@ export const CornerAlert: React.FC<CornerAlertProps> = ({
           <div className="text-sm font-medium">{internalMessage}</div>
           <div
             onClick={onDismiss}
-            className="dark:hover:bg-gray-300 hover:bg-plainGray-600 ml-6 rounded outline-none focus:outline-none"
+            className="dark:hover:bg-gray-300 hover:bg-dark-600 ml-6 rounded outline-none focus:outline-none"
           >
             <XIcon className="w-8 p-1 cursor-pointer" onClick={onDismiss} />
           </div>

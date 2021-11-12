@@ -10,12 +10,12 @@ const ProgressBar: React.FC<Props> = ({ duration }) => {
 
   useEffect(() => {
     if (progressBar.current) {
-      progressBar.current.style.animationDuration = `${duration - 5}s`;
+      progressBar.current.style.animationDuration = `${duration}s`;
     }
   }, [progressBar, duration]);
 
   return (
-    <div className="bg-gray-800 rounded-xl p-1 shadow h-full flex items-end">
+    <div className="bg-gray-800 rounded-xl p-1 shadow md:h-full h-8 flex items-end mx-2 md:mx-0">
       <div
         ref={progressBar}
         className="w-full h-full px-3 rounded-lg bg-green-400 dark:bg-green-600 progress"

@@ -1,14 +1,31 @@
 .progress {
-  animation: progressBar linear;
+  animation: progressBarHorizontal linear;
   animation-fill-mode: both;
   animation-duration: 120s;
 }
 
-@keyframes progressBar {
+@media (min-width: 768px) {
+  .progress {
+    animation: progressBarVert linear;
+    animation-fill-mode: both;
+    animation-duration: 120s;
+  }
+}
+
+@keyframes progressBarVert {
   0% {
     height: 100%;
   }
   100% {
     height: 0%;
+  }
+}
+
+@keyframes progressBarHorizontal {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
   }
 }
