@@ -23,7 +23,7 @@ export class IOSingleton {
     >
   ) {
     this.io.on("connection", (socket) => {
-      Log.info("A socket has connected.");
+      Log.info(`Socket from ${socket.handshake.address} connected.`);
       this.onConnection(socket);
     });
   }
