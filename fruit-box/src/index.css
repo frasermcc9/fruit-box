@@ -5,6 +5,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 125ms;
 }
 
 code {
@@ -30,8 +34,6 @@ code {
   background-color: rgba(255, 50, 0, 0.4);
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #18191a;
-  }
+.dark {
+  background-color: #18191a;
 }

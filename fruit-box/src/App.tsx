@@ -6,8 +6,18 @@ import LobbyPage from "./pages/lobby/LobbyPage";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import QuickPlayPage from "./pages/game/quickplay/QuickPlayPage";
 import { CornerAlertManager } from "./pages/components/alert/CornerAlert";
-import { useLocalStorageOnLoad } from "./hooks/useLocalStorage";
+import {
+  useLocalStorage,
+  useLocalStorageOnLoad,
+} from "./hooks/useLocalStorage";
 import { Lobby, LobbyContext } from "./hooks/useLobby";
+import {
+  SunIcon,
+  MoonIcon,
+  QuestionMarkCircleIcon,
+} from "@heroicons/react/outline";
+import HelpPage from "./pages/tutorial/HelpPage";
+import HeaderButtons from "./global/HeaderButtons";
 
 const App: React.FC = () => {
   const endpoint = process.env.REACT_APP_ENDPOINT;
@@ -43,25 +53,31 @@ const App: React.FC = () => {
   });
 
   return (
-    <IOProvider value={socket}>
-      <LobbyContext.Provider value={{ ...lobbyContext, setLobbyContext }}>
-        <CornerAlertManager>
-          <Router>
-            <Switch>
-              <Route path="/game/:gameId">
-                <GamePage />
-              </Route>
-              <Route path="/quickplay">
-                <QuickPlayPage />
-              </Route>
-              <Route path="/">
-                <LobbyPage />
-              </Route>
-            </Switch>
-          </Router>
-        </CornerAlertManager>
-      </LobbyContext.Provider>
-    </IOProvider>
+    <div className="dark:text-gray-100 text-gray-900">
+      <IOProvider value={socket}>
+        <LobbyContext.Provider value={{ ...lobbyContext, setLobbyContext }}>
+          <CornerAlertManager>
+            <Router>
+              <HeaderButtons />
+              <Switch>
+                <Route path="/game/:gameId">
+                  <GamePage />
+                </Route>
+                <Route path="/quickplay">
+                  <QuickPlayPage />
+                </Route>
+                <Route path="/tutorial">
+                  <HelpPage />
+                </Route>
+                <Route path="/">
+                  <LobbyPage />
+                </Route>
+              </Switch>
+            </Router>
+          </CornerAlertManager>
+        </LobbyContext.Provider>
+      </IOProvider>
+    </div>
   );
 };
 
