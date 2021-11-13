@@ -1,24 +1,17 @@
 import React, { useEffect, useState } from "react";
-import "./styles/tailwind.css";
-import GamePage from "./pages/game/GamePage";
-import { IOProvider, useIOInitializer } from "./hooks/useIO";
-import LobbyPage from "./pages/lobby/LobbyPage";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import QuickPlayPage from "./pages/game/quickplay/QuickPlayPage";
-import { CornerAlertManager } from "./pages/components/alert/CornerAlert";
-import {
-  useLocalStorage,
-  useLocalStorageOnLoad,
-} from "./hooks/useLocalStorage";
-import { Lobby, LobbyContext } from "./hooks/useLobby";
-import {
-  SunIcon,
-  MoonIcon,
-  QuestionMarkCircleIcon,
-} from "@heroicons/react/outline";
-import HelpPage from "./pages/tutorial/HelpPage";
 import HeaderButtons from "./global/HeaderButtons";
+import { AudioSettingsContextProvider } from "./hooks/useAudio";
+import { IOProvider, useIOInitializer } from "./hooks/useIO";
+import { Lobby, LobbyContext } from "./hooks/useLobby";
+import { useLocalStorageOnLoad } from "./hooks/useLocalStorage";
+import { CornerAlertManager } from "./pages/components/alert/CornerAlert";
+import GamePage from "./pages/game/GamePage";
+import QuickPlayPage from "./pages/game/quickplay/QuickPlayPage";
+import LobbyPage from "./pages/lobby/LobbyPage";
 import StatsPage from "./pages/stats/StatsPage";
+import HelpPage from "./pages/tutorial/HelpPage";
+import "./styles/tailwind.css";
 
 const App: React.FC = () => {
   const endpoint = process.env.REACT_APP_ENDPOINT;
@@ -58,26 +51,28 @@ const App: React.FC = () => {
       <IOProvider value={socket}>
         <LobbyContext.Provider value={{ ...lobbyContext, setLobbyContext }}>
           <CornerAlertManager>
-            <Router>
-              <HeaderButtons />
-              <Switch>
-                <Route path="/game/:gameId">
-                  <GamePage />
-                </Route>
-                <Route path="/quickplay">
-                  <QuickPlayPage />
-                </Route>
-                <Route path="/tutorial">
-                  <HelpPage />
-                </Route>
-                <Route path="/stats">
-                  <StatsPage />
-                </Route>
-                <Route path="/">
-                  <LobbyPage />
-                </Route>
-              </Switch>
-            </Router>
+            <AudioSettingsContextProvider>
+              <Router>
+                <HeaderButtons />
+                <Switch>
+                  <Route path="/game/:gameId">
+                    <GamePage />
+                  </Route>
+                  <Route path="/quickplay">
+                    <QuickPlayPage />
+                  </Route>
+                  <Route path="/tutorial">
+                    <HelpPage />
+                  </Route>
+                  <Route path="/stats">
+                    <StatsPage />
+                  </Route>
+                  <Route path="/">
+                    <LobbyPage />
+                  </Route>
+                </Switch>
+              </Router>
+            </AudioSettingsContextProvider>
           </CornerAlertManager>
         </LobbyContext.Provider>
       </IOProvider>

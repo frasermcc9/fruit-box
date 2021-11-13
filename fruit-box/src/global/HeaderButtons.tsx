@@ -4,9 +4,12 @@ import {
   QuestionMarkCircleIcon,
   ChartBarIcon,
   CodeIcon,
+  MusicNoteIcon,
+  VolumeOffIcon,
 } from "@heroicons/react/outline";
 import React, { useEffect } from "react";
 import { useHistory } from "react-router";
+import { useAudioSettings } from "../hooks/useAudio";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const HeaderButtons = () => {
@@ -35,8 +38,18 @@ const HeaderButtons = () => {
     history.push("/stats");
   };
 
+  const [{ playAudio }, setAudioSettings] = useAudioSettings();
+  useEffect(() => {
+    setAudioSettings({
+      playAudio: JSON.parse(localStorage.getItem("playAudio")!) ?? false,
+    });
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("playAudio", playAudio.toString());
+  }, [playAudio]);
+
   return (
-    <div className="fixed top-2 left-2 flex gap-x-2">
+    <div className="sm:fixed top-2 left-2 flex gap-x-2">
       <HeaderButton
         action={swapTheme}
         icon={
@@ -60,6 +73,18 @@ const HeaderButtons = () => {
           window.open("https://github.com/frasermcc9/fruit-box", "_blank")
         }
         icon={<CodeIcon className="w-8 text-current" />}
+      />
+      <HeaderButton
+        action={() =>
+          setAudioSettings((p) => ({ ...p, playAudio: !p.playAudio }))
+        }
+        icon={
+          playAudio ? (
+            <MusicNoteIcon className="w-8 text-current" />
+          ) : (
+            <VolumeOffIcon className="w-8 text-current" />
+          )
+        }
       />
     </div>
   );
