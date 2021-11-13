@@ -1,0 +1,25 @@
+@keyframes fade-in-up {
+  0%,
+  5% {
+    top: 30%;
+    opacity: 1;
+  }
+  100% {
+    top: -100%;
+    opacity: 0;
+  }
+}
+.plus-animation {
+  color: #3f3f3f;
+  position: absolute;
+  left: 54%;
+  transform: translate(-50%, -50%);
+  animation-name: fade-in-up;
+  animation-duration: 2s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
+}
+
+.dark .plus-animation {
+  color: #fff;
+}
