@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@craco/craco": "^6.4.0",
+    "@frasermcc/stateful-context": "^1.0.3",
     "@heroicons/react": "^1.0.5",
     "@ramonak/react-progress-bar": "^4.0.0",
     "@tailwindcss/forms": "^0.3.4",

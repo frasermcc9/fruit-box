@@ -1407,6 +1407,13 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@frasermcc/stateful-context@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@frasermcc/stateful-context/-/stateful-context-1.0.3.tgz#64533fb08def9cf32e41cdfc2a4e1c5ca2e78903"
+  integrity sha512-7UPWSbhY8+SVRy49U0D6oda/Zh8TdiIpbvLWa1QjZsN36lxbAiEZI1IGz0metMz9jsKB7LWX++2LUO6l6gEgOA==
+  optionalDependencies:
+    "@types/react" "^17.0.34"
+
 "@fullhuman/postcss-purgecss@^2.1.2":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@fullhuman/postcss-purgecss/-/postcss-purgecss-2.3.0.tgz#50a954757ec78696615d3e118e3fee2d9291882e"
@@ -2159,6 +2166,15 @@
   version "17.0.33"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.33.tgz#e01ae3de7613dac1094569880bb3792732203ad5"
   integrity sha512-pLWntxXpDPaU+RTAuSGWGSEL2FRTNyRQOjSWDke/rxRg14ncsZvx8AKWMWZqvc1UOaJIAoObdZhAWvRaHFi5rw==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
+
+"@types/react@^17.0.34":
+  version "17.0.34"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.34.tgz#797b66d359b692e3f19991b6b07e4b0c706c0102"
+  integrity sha512-46FEGrMjc2+8XhHXILr+3+/sTe3OfzSPU9YGKILLrUYbQ1CLQC9Daqo1KzENGXAWwrFwiY0l4ZbF20gRvgpWTg==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
