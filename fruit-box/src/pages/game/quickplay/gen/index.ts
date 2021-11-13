@@ -39,7 +39,7 @@ export class BoardCreator implements BoardGenerator {
     return this;
   }
 
-  public getSimpleIndices(count: number, threshold: number = 100): number[] {
+  public getSimpleIndices(count: number, threshold: number = 200): number[] {
     const indices = new Set<number>();
 
     let breaker = 0;
