@@ -12,7 +12,7 @@ export const useMediaQuery = <T, F>(
     const handler = () => setMatch(!!mediaQuery.matches);
     mediaQuery.addEventListener("change", handler);
     return () => {
-      mediaQuery.addEventListener("change", handler);
+      mediaQuery.removeEventListener("change", handler);
     };
   }, [mediaQuery]);
 

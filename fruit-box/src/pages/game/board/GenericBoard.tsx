@@ -5,6 +5,7 @@ import ProgressBar from "../progress/ProgressBar";
 import song from "../../../res/song.mp3";
 import useSound from "use-sound";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import { useAudioSettings } from "../../../hooks/useAudio";
 
 interface Props {
   score: number;
@@ -15,9 +16,9 @@ interface Props {
   appleValues?: number[];
   rows?: number;
   cols?: number;
-  duration: number;
   average?: number;
   appleRenderer?: JSX.Element;
+  percentage?: number;
 }
 
 const GenericBoard: React.FC<Props> = ({
@@ -28,14 +29,16 @@ const GenericBoard: React.FC<Props> = ({
   selectionRef,
   handleSelect,
   children,
-  duration,
   cols = 20,
   rows = 10,
   average,
   appleRenderer,
+  percentage,
 }) => {
+  const [{ playAudio }] = useAudioSettings();
+
   const [play, { stop }] = useSound(song, {
-    volume: 0.15,
+    volume: playAudio ? 0.15 : 0,
     interrupt: true,
   });
 
@@ -65,8 +68,11 @@ const GenericBoard: React.FC<Props> = ({
     <>
       <section className="lg:my-24 my-0 max-w-7xl mx-auto flex flex-col md:flex-row gap-x-4">
         <div className="flex flex-row justify-center">
-          <div className="p-4 bg-green-400 dark:bg-green-600 rounded">
-            <div className="text-center text-4xl font-semibold pb-4 text-white text-shadow">
+          <div className="p-2 md:p-4 bg-green-400 dark:bg-green-600 rounded">
+            <div
+              id="board-score"
+              className="text-center text-2xl md:text-4xl font-semibold pb-2 md:pb-4 text-white text-shadow relative"
+            >
               {score}
             </div>
             <SelectableGroup
@@ -100,7 +106,7 @@ const GenericBoard: React.FC<Props> = ({
           </div>
         </div>
         <div className="md:w-12 w-full mt-2 md:mt-0">
-          <ProgressBar duration={duration - 2} />
+          <ProgressBar percentage={percentage ?? 0} />
         </div>
       </section>
       {children}

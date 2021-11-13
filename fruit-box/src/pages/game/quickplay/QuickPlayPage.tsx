@@ -20,13 +20,28 @@ import SelectableQuickplayApple, {
   QuickplayAppleProps,
 } from "./QuickplayApple";
 import { NegativeGenerator } from "./gen/NegativeGenerator";
+import { createScoreIncrease } from "../../components/animation/scoreIncrease/ScoreIncreaseHandler";
+import {
+  QuickplayContextProvider,
+  useQuickplay,
+} from "../../../hooks/useQuickplay";
+import { FrozenGenerator } from "./gen/FrozenGenerator";
+import { usePollingEffect } from "../../../hooks/usePollingEffect";
 
 interface Props {
   goalValue?: number;
   appleCount?: number;
 }
 
-const QuickPlayPage: React.FC<Props> = ({
+const QuickPlayPage: React.FC = () => {
+  return (
+    <QuickplayContextProvider>
+      <QuickPlayInternal />
+    </QuickplayContextProvider>
+  );
+};
+
+const QuickPlayInternal: React.FC<Props> = ({
   goalValue = 10,
   appleCount = 170,
 }) => {
@@ -39,6 +54,12 @@ const QuickPlayPage: React.FC<Props> = ({
   }, [search]);
 
   const selectionRef = React.useRef<SelectableGroup>(null);
+
+  const [{ board, endTime, startTime }, setQuickplay] = useQuickplay();
+
+  const appleValues = board;
+  const setAppleValues = (values: Entity[]) =>
+    setQuickplay((p) => ({ ...p, board: values }));
 
   const calcApples = useCallback(() => {
     const creator = new BoardCreator({ appleCount, target: goalValue });
@@ -55,11 +76,25 @@ const QuickPlayPage: React.FC<Props> = ({
         )
         .applyModifier(
           new NegativeGenerator({ target: goalValue, appleCount: 5 })
+        )
+        .applyModifier(
+          new FrozenGenerator({ appleCount: 1, context: setQuickplay })
         );
     }
     return creator.getBoard();
-  }, [appleCount, classic, goalValue]);
-  const [appleValues, setAppleValues] = useState<Entity[]>(calcApples);
+  }, [appleCount, classic, goalValue, setQuickplay]);
+
+  useEffect(() => {
+    const apples = calcApples();
+    setAppleValues(apples);
+
+    const now = Date.now();
+    setQuickplay((p) => ({
+      ...p,
+      startTime: now,
+      endTime: now + 2 * 60000,
+    }));
+  }, []);
 
   const [score, setScore] = useState(0);
 
@@ -68,16 +103,7 @@ const QuickPlayPage: React.FC<Props> = ({
   const average = useMemo(() => {
     const sum = appleValues.reduce((a, b) => a + b.getBaseValue(), 0);
     return sum / appleValues.length;
-  }, [classic]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setPlaying(false);
-    }, 120 * 1000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, []);
+  }, [appleValues]);
 
   const [playPop] = useSound(pop, {
     volume: 0.25,
@@ -100,35 +126,39 @@ const QuickPlayPage: React.FC<Props> = ({
     []
   );
 
-  const handleSelect = (selected: React.Component<QuickplayAppleProps>[]) => {
-    const visibleApples = getVisibleApples(selected);
-    const total = getSum(visibleApples);
+  const handleSelect = useCallback(
+    (selected: React.Component<QuickplayAppleProps>[]) => {
+      const visibleApples = getVisibleApples(selected);
+      const total = getSum(visibleApples);
 
-    const selectedApples = visibleApples.map((apple) => apple.props.apple);
-    const newValues = appleValues.slice();
+      const selectedApples = visibleApples.map((apple) => apple.props.apple);
+      const newValues = appleValues.slice();
 
-    if (
-      total === goalValue ||
-      selectedApples.some((a) => a.preTargetHook(total))
-    ) {
-      let scoreToAdd = 0;
+      if (
+        total === goalValue ||
+        selectedApples.some((a) => a.preTargetHook(total))
+      ) {
+        let scoreToAdd = 0;
 
-      const processQueue: ((s: number) => number)[] = [];
-      for (const apple of selectedApples) {
-        scoreToAdd += apple.onSelection(newValues, processQueue);
+        const processQueue: ((s: number) => number)[] = [];
+        for (const apple of selectedApples) {
+          scoreToAdd += apple.onSelection(newValues, processQueue);
+        }
+
+        let bonusScore: number[] = [];
+        for (const process of processQueue) {
+          bonusScore.push(process(scoreToAdd));
+        }
+        scoreToAdd += bonusScore.reduce((a, b) => a + b, 0);
+
+        setAppleValues(newValues);
+        setScore((old) => old + scoreToAdd);
+        playPop();
+        createScoreIncrease("board-score", scoreToAdd);
       }
-
-      let bonusScore: number[] = [];
-      for (const process of processQueue) {
-        bonusScore.push(process(scoreToAdd));
-      }
-      scoreToAdd += bonusScore.reduce((a, b) => a + b, 0);
-
-      setAppleValues(newValues);
-      setScore((old) => old + scoreToAdd);
-      playPop();
-    }
-  };
+    },
+    [appleValues, getSum, getVisibleApples, goalValue, playPop, setAppleValues]
+  );
 
   useLayoutEffect(() => {
     const selectBox = document
@@ -137,33 +167,50 @@ const QuickPlayPage: React.FC<Props> = ({
     selectBox?.classList.add("selectable-selectbox-partial");
   }, []);
 
-  const handleDuring = (selected: React.Component<QuickplayAppleProps>[]) => {
-    const visibleApples = getVisibleApples(selected);
-    const total = getSum(visibleApples);
+  const handleDuring = useCallback(
+    (selected: React.Component<QuickplayAppleProps>[]) => {
+      const visibleApples = getVisibleApples(selected);
+      const total = getSum(visibleApples);
 
-    const selectedApples = visibleApples.map((apple) => apple.props.apple);
+      const selectedApples = visibleApples.map((apple) => apple.props.apple);
 
-    const selectBox = document
-      .getElementsByClassName("selectable-selectbox")
-      .item(0);
-    if (
-      total === goalValue ||
-      selectedApples.some((a) => a.preTargetHook(total))
-    ) {
-      selectBox?.classList.add("selectable-selectbox-valid");
-      selectBox?.classList.remove("selectable-selectbox-partial");
-    } else {
-      selectBox?.classList.add("selectable-selectbox-partial");
-      selectBox?.classList.remove("selectable-selectbox-valid");
-    }
-  };
+      const selectBox = document
+        .getElementsByClassName("selectable-selectbox")
+        .item(0);
+      if (
+        total === goalValue ||
+        selectedApples.some((a) => a.preTargetHook(total))
+      ) {
+        selectBox?.classList.add("selectable-selectbox-valid");
+        selectBox?.classList.remove("selectable-selectbox-partial");
+      } else {
+        selectBox?.classList.add("selectable-selectbox-partial");
+        selectBox?.classList.remove("selectable-selectbox-valid");
+      }
+    },
+    [getSum, getVisibleApples, goalValue]
+  );
 
   const resetGame = () => {
-    // setAppleValues(calcApples());
-    // setScore(0);
-    // setPlaying(true);
     window.location.reload();
   };
+
+  const [percent, setPercent] = useState(0);
+  usePollingEffect(
+    () => {
+      const calculateTimePercent = () => {
+        const [start, now, end] = [startTime, Date.now(), endTime];
+        return ((now - start) / (end - start)) * 100;
+      };
+      const percent = calculateTimePercent();
+      if (percent > 100) {
+        setPlaying(false);
+      }
+      setPercent(percent);
+    },
+    1000,
+    [startTime, endTime, playing]
+  );
 
   return (
     <>
@@ -175,8 +222,8 @@ const QuickPlayPage: React.FC<Props> = ({
         selectionRef={selectionRef}
         cols={17}
         rows={10}
-        duration={120}
         average={average}
+        percentage={100 - percent}
         appleRenderer={
           <>
             {appleValues.map((entity, key) => {

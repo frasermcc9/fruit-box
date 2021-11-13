@@ -6,6 +6,6 @@ export interface QuickplayModeDetail {
 }
 
 export const quickplayArray: QuickplayModeDetail[] = [
-  { display: "Normal", mode: "blitz" },
+  { display: "Blitz", mode: "blitz" },
   { display: "Classic", mode: "classic" },
 ];

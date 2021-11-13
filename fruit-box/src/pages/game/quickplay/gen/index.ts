@@ -45,7 +45,10 @@ export class BoardCreator implements BoardGenerator {
     let breaker = 0;
     while (indices.size < count && breaker < threshold) {
       breaker++;
-      indices.add(~~(Math.random() * this.board.length));
+      const index = ~~(Math.random() * this.board.length);
+      if (this.board[index].isSimpleApple()) {
+        indices.add(index);
+      }
     }
     return Array.from(indices);
   }

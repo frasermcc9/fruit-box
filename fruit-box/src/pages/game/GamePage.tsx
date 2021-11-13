@@ -10,6 +10,7 @@ import pop from "../../res/sfx/pop.mp3";
 import useSound from "use-sound";
 import GameOverModal from "./GameOverModal";
 import useLobby from "../../hooks/useLobby";
+import { usePollingEffect } from "../../hooks/usePollingEffect";
 
 interface Props {
   goalValue?: number;
@@ -31,6 +32,11 @@ const GamePage: React.FC<Props> = ({ goalValue = 10 }) => {
 
   const [scores, setScores] = useState<Record<string, number>>({});
   const [playing, setPlaying] = useState(true);
+
+  const [timeState, setTimeState] = useState<{ start: number; end: number }>({
+    start: Date.now(),
+    end: Date.now() + 1000 * settings.gameDuration,
+  });
 
   useEffect(() => {
     if (!gameId) return;
@@ -135,6 +141,19 @@ const GamePage: React.FC<Props> = ({ goalValue = 10 }) => {
     io?.emit("playAgain");
   };
 
+  const [percent, setPercent] = useState(0);
+  usePollingEffect(
+    () => {
+      const calculateTimePercent = () => {
+        const [start, now, end] = [timeState.start, Date.now(), timeState.end];
+        return ((now - start) / (end - start)) * 100;
+      };
+      setPercent(calculateTimePercent());
+    },
+    1000,
+    []
+  );
+
   return (
     <>
       <GenericBoard
@@ -144,7 +163,7 @@ const GamePage: React.FC<Props> = ({ goalValue = 10 }) => {
         playing={playing}
         score={score}
         selectionRef={selectionRef}
-        duration={settings.gameDuration}
+        percentage={100 - percent}
       >
         <LeaderBoard scores={scores} />
       </GenericBoard>
