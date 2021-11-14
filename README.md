@@ -1,6 +1,8 @@
 # Fruit Box
 Welcome to Fruit Box! This is a game where you match apples to sums of 10.
 
+The game can be played [here](https://amogusapple.web.app/)
+
 ## Running Locally
 Requirements:
 - Node.js 12 or above
