@@ -8,7 +8,8 @@ const LeaderboardSection: React.FC = () => {
     [K in QuickplayMode]?: { name: string; score: number }[];
   }>(`${apiBase}/stats/boards`, fetcher);
 
-  const [activeBoard, setActiveBoard] = React.useState<QuickplayMode>("blitz");
+  const [activeBoard, setActiveBoard] =
+    React.useState<QuickplayMode>("blitz_daily");
 
   if (!data) {
     return <div>Loading...</div>;
@@ -28,7 +29,7 @@ const LeaderboardSection: React.FC = () => {
 
   return (
     <>
-      <div className="flex gap-x-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center max-w-xl">
         {quickplayArray.map((q) => (
           <LeaderboardSelector
             activeBoard={activeBoard}
@@ -80,7 +81,7 @@ const LeaderboardSelector: React.FC<LeaderboardSelectorProps> = ({
   if (active) {
     return (
       <button
-        className="px-4 py-2 bg-green-500 text-white text-xl font-semibold rounded-md shadow w-24"
+        className="px-4 py-2 bg-green-500 text-white text-xl font-semibold rounded-md shadow w-40"
         onClick={() => {}}
       >
         {boardName}
@@ -90,7 +91,7 @@ const LeaderboardSelector: React.FC<LeaderboardSelectorProps> = ({
 
   return (
     <button
-      className="px-4 py-2 bg-dark-400 text-white text-xl font-semibold rounded-md shadow w-24"
+      className="px-4 py-2 bg-dark-400 text-white text-xl font-semibold rounded-md shadow w-40"
       onClick={() => onChange(thisBoard)}
     >
       {boardName}

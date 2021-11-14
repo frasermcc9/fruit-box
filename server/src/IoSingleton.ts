@@ -163,6 +163,7 @@ export class IOSingleton {
         board: mode,
         name,
         score,
+        time: Date.now(),
       });
     });
 

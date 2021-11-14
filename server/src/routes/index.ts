@@ -27,7 +27,21 @@ const stats = (router: Router) => {
 
   router.get("/boards", async (req, res) => {
     const globals = await GlobalCollection.getCollection();
-    const boards = await globals.getSubmissions("blitz", "classic");
-    res.status(200).send(JSON.stringify(boards));
+    const allTimeBoards = await globals.getSubmissions({
+      boards: ["blitz", "classic"],
+      period: "all",
+    });
+    const dailyBoards = await globals.getSubmissions({
+      boards: ["blitz", "classic"],
+      period: "daily",
+    });
+
+    const result = {
+      ...allTimeBoards,
+      blitz_daily: dailyBoards.blitz,
+      classic_daily: dailyBoards.classic,
+    };
+
+    res.status(200).send(JSON.stringify(result));
   });
 };
