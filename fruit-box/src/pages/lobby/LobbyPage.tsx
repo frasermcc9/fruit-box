@@ -126,7 +126,7 @@ const LobbyPage: React.FC<Props> = () => {
                   <div className="flex flex-col md:flex-row gap-4">
                     <input
                       type="text"
-                      className="form-input rounded transition-all outline-none focus:outline-none focus:border-green-500 border-2 focus:ring-0 dark:bg-dark-600"
+                      className="form-input rounded transition-all outline-none focus:outline-none focus:border-green-500 border-2 focus:ring-0 dark:bg-dark-600 flex-grow"
                       placeholder="Or enter an existing code..."
                       value={requestedCode}
                       onChange={(e) => setRequestedCode(e.target.value)}
