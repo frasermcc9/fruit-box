@@ -13,6 +13,10 @@ const v1Api = (base: Router) => {
   stats(router);
 
   base.use("/stats", router);
+
+  base.get("/ping", (req, res) => {
+    res.status(200).send("Pong!");
+  });
 };
 
 const stats = (router: Router) => {
