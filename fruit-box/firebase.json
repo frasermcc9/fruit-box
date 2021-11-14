@@ -1,11 +1,11 @@
 {
   "hosting": {
-    "public": "redirect",
+    "public": "build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
-        "destination": "/redirect.html"
+        "destination": "/index.html"
       }
     ]
   }
