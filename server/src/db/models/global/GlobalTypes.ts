@@ -2,8 +2,14 @@ import { Model, Document } from "mongoose";
 
 export interface GlobalProps {
   secondsUsed: number;
-  blitzBoard: { name: string; score: number; time?: number }[];
-  classicBoard: { name: string; score: number; time?: number }[];
+  blitzBoard: { name: string; score: number; time?: number; uuid?: string }[];
+  classicBoard: {
+    name: string;
+    score: number;
+    time?: number;
+    layout?: number[];
+    uuid?: string;
+  }[];
 }
 export interface GlobalDocument extends GlobalProps, Document {
   addSeconds(this: GlobalDocument, seconds: number): Promise<void>;
@@ -14,7 +20,14 @@ export interface GlobalDocument extends GlobalProps, Document {
       score,
       board,
       time,
-    }: { name: string; score: number; board: string; time: number }
+      layout,
+    }: {
+      name: string;
+      score: number;
+      board: string;
+      time: number;
+      layout: number[];
+    }
   ): Promise<void>;
   getSubmissions<T extends string>(
     this: GlobalDocument,

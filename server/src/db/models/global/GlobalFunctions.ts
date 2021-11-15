@@ -1,6 +1,7 @@
 import Log from "@frasermcc/log";
 import { GlobalDocument, GlobalModel } from "./GlobalTypes";
 import { startOfDay } from "date-fns";
+import { v4 } from "uuid";
 
 const statics = {
   async getCollection(this: GlobalModel) {
@@ -29,12 +30,20 @@ const methods = {
       score,
       board,
       time,
-    }: { name: string; score: number; board: string; time: number }
+      layout,
+    }: {
+      name: string;
+      score: number;
+      board: string;
+      time: number;
+      layout: number[];
+    }
   ): Promise<void> {
+    const uuid = v4();
     if (board === "classic") {
-      this.classicBoard.push({ name, score, time });
+      this.classicBoard.push({ name, score, time, layout, uuid });
     } else if (board === "blitz") {
-      this.blitzBoard.push({ name, score, time });
+      this.blitzBoard.push({ name, score, time, uuid });
     } else {
       Log.warn(`Unknown board: ${board}`);
     }

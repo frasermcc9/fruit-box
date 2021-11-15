@@ -157,13 +157,14 @@ export class IOSingleton {
       await (await GlobalCollection.getCollection()).addSeconds(120);
     });
 
-    socket.on("quickplaySubmission", async ({ mode, score, name }) => {
+    socket.on("quickplaySubmission", async ({ mode, score, name, layout }) => {
       Log.info(`${name} submitted a quickplay score of ${score}.`);
       (await GlobalCollection.getCollection()).addSubmission({
         board: mode,
         name,
         score,
         time: Date.now(),
+        layout,
       });
     });
 
