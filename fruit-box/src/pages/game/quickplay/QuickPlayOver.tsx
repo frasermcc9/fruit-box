@@ -5,16 +5,17 @@ import silver from "../../../res/trophy/silver.png";
 import gold from "../../../res/trophy/gold.png";
 import Modal from "../../components/Modal";
 import { useIO } from "../../../hooks/useIO";
-import { QuickplayMode } from "./QuickplayMode";
+import { useQuickplay } from "../../../hooks/useQuickplay";
 
 interface Props {
   score: number;
   reset: () => void;
-  mode: QuickplayMode;
+  mode: string;
 }
 
 const QuickPlayOver: React.FC<Props> = ({ score, reset, mode }) => {
   const socket = useIO();
+  const [{ board }] = useQuickplay();
 
   useEffect(() => {
     socket?.emit("quickplayOver");
@@ -27,6 +28,7 @@ const QuickPlayOver: React.FC<Props> = ({ score, reset, mode }) => {
       score,
       mode,
       name,
+      layout: board.map((apple) => apple.getBaseValue()),
     });
     reset();
   };
@@ -59,22 +61,24 @@ const QuickPlayOver: React.FC<Props> = ({ score, reset, mode }) => {
         >
           Play Again
         </button>
-        <div className="flex flex-col gap-y-2 mt-8 mb-4">
-          <input
-            type="text"
-            className="form-input rounded transition-all outline-none focus:outline-none focus:border-green-500 border-2 focus:ring-0 dark:bg-dark-600"
-            placeholder="Name for leaderboard..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button
-            onClick={submitScore}
-            className="transition-all duration-300 text-xl text-white bg-green-400 p-2 md:p-3 font-semibold rounded-xl hover:bg-green-500 active:hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-auto"
-            disabled={name.length === 0}
-          >
-            Submit
-          </button>
-        </div>
+        {mode === "replay" || (
+          <div className="flex flex-col gap-y-2 mt-8 mb-4">
+            <input
+              type="text"
+              className="form-input rounded transition-all outline-none focus:outline-none focus:border-green-500 border-2 focus:ring-0 dark:bg-dark-600"
+              placeholder="Name for leaderboard..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <button
+              onClick={submitScore}
+              className="transition-all duration-300 text-xl text-white bg-green-400 p-2 md:p-3 font-semibold rounded-xl hover:bg-green-500 active:hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-auto"
+              disabled={name.length === 0}
+            >
+              Submit
+            </button>
+          </div>
+        )}
       </div>
     </Modal>
   );

@@ -47,10 +47,17 @@ const QuickPlayInternal: React.FC<Props> = ({
 }) => {
   const { search } = useLocation();
 
-  const classic = useMemo(() => {
+  const [mode, detail] = useMemo(() => {
     const params = new URLSearchParams(search);
-    const value = params.get("classic");
-    return JSON.parse(value as string) as boolean;
+    let value = params.get("classic");
+    if (value) {
+      return ["classic", null];
+    }
+    value = params.get("replay");
+    if (value) {
+      return ["replay", value];
+    }
+    return ["blitz", null];
   }, [search]);
 
   const selectionRef = React.useRef<SelectableGroup>(null);
@@ -62,8 +69,17 @@ const QuickPlayInternal: React.FC<Props> = ({
     setQuickplay((p) => ({ ...p, board: values }));
 
   const calcApples = useCallback(() => {
+    if (mode === "replay") {
+      const replay = sessionStorage.getItem(detail ?? "");
+      if (replay) {
+        const parsed = JSON.parse(replay);
+        return new BoardCreator({ replay: parsed }).getBoard();
+      }
+    }
+
     const creator = new BoardCreator({ appleCount, target: goalValue });
-    if (!classic) {
+
+    if (mode === "blitz") {
       creator
         .applyModifier(
           new MultiplierGenerator({ multiplier: 2, appleCount: 5 })
@@ -80,9 +96,11 @@ const QuickPlayInternal: React.FC<Props> = ({
         .applyModifier(
           new FrozenGenerator({ appleCount: 1, context: setQuickplay })
         );
+      return creator.getBoard();
+    } else {
+      return creator.getBoard();
     }
-    return creator.getBoard();
-  }, [appleCount, classic, goalValue, setQuickplay]);
+  }, [appleCount, mode, goalValue, setQuickplay]);
 
   useEffect(() => {
     const apples = calcApples();
@@ -232,13 +250,7 @@ const QuickPlayInternal: React.FC<Props> = ({
           </>
         }
       />
-      {playing || (
-        <QuickPlayOver
-          score={score}
-          reset={resetGame}
-          mode={classic ? "classic" : "blitz"}
-        />
-      )}
+      {playing || <QuickPlayOver score={score} reset={resetGame} mode={mode} />}
     </>
   );
 };

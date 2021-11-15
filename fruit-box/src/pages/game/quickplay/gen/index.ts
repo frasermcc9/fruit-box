@@ -7,8 +7,9 @@ export interface BoardModifier {
 }
 
 interface BoardGeneratorArgs {
-  appleCount: number;
-  target: number;
+  appleCount?: number;
+  target?: number;
+  replay?: number[];
 }
 
 export interface BoardGenerator {
@@ -18,16 +19,22 @@ export interface BoardGenerator {
 }
 
 export class BoardCreator implements BoardGenerator {
-  private appleCount: number;
-  private target: number;
+  private appleCount?: number;
+  private target?: number;
 
   private board: Entity[];
 
-  constructor({ appleCount, target }: BoardGeneratorArgs) {
-    this.appleCount = appleCount;
-    this.target = target;
-
-    this.board = this.generate();
+  constructor({ appleCount, target, replay }: BoardGeneratorArgs) {
+    if (appleCount && target) {
+      this.appleCount = appleCount;
+      this.target = target;
+      this.board = this.generate();
+      return;
+    } else if (replay) {
+      this.board = this.generateReplay(replay);
+      return;
+    }
+    throw new Error("Incorrect BoardCreator arguments");
   }
 
   public getBoard(): Board {
@@ -54,11 +61,18 @@ export class BoardCreator implements BoardGenerator {
   }
 
   private generate(): Board {
+    if (!this.appleCount || !this.target) {
+      throw new Error("Incorrect BoardCreator arguments");
+    }
     return Array.from({ length: this.appleCount }, (_, i) => {
       return new SimpleApple({
         index: i,
-        value: 1 + ~~(Math.random() * (this.target - 1)),
+        value: 1 + ~~(Math.random() * (this.target! - 1)),
       });
     });
+  }
+
+  private generateReplay(values: number[]): Board {
+    return values.map((value, index) => new SimpleApple({ index, value }));
   }
 }

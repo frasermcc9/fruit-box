@@ -2,11 +2,20 @@ import React from "react";
 import useSWR from "swr";
 import { apiBase, fetcher } from "../../utils/Api";
 import { quickplayArray, QuickplayMode } from "../game/quickplay/QuickplayMode";
+import { ReplyIcon, XCircleIcon } from "@heroicons/react/outline";
+import { useHistory } from "react-router";
 
 const LeaderboardSection: React.FC = () => {
   const { data } = useSWR<{
-    [K in QuickplayMode]?: { name: string; score: number }[];
+    [K in QuickplayMode]?: {
+      name: string;
+      score: number;
+      uuid?: string;
+      layout?: number[];
+    }[];
   }>(`${apiBase}/stats/boards`, fetcher);
+
+  const history = useHistory();
 
   const [activeBoard, setActiveBoard] =
     React.useState<QuickplayMode>("blitz_daily");
@@ -27,6 +36,15 @@ const LeaderboardSection: React.FC = () => {
     return "dark:bg-dark-600";
   };
 
+  const handleClick = (id?: string, layout?: number[]) => {
+    if (!id || !layout) {
+      return;
+    }
+
+    sessionStorage.setItem(id, JSON.stringify(layout));
+    history.push("/quickplay?replay=" + id);
+  };
+
   return (
     <>
       <div className="flex flex-wrap gap-4 justify-center max-w-xl">
@@ -41,23 +59,41 @@ const LeaderboardSection: React.FC = () => {
         ))}
       </div>
       <table className="-mt-2 table-fixed text-2xl font-semibold rounded dark:bg-dark-600 text-center shadow-lg divide-y divide-gray-200 dark:divide-gray-600">
-        <tr className="dark:bg-dark-400 bg-gray-100 rounded ">
-          <th className="w-48 rounded-tl py-4">Rank</th>
-          <th className="w-48 py-4">Name</th>
-          <th className="w-48 rounded-tr py-4">Score</th>
-        </tr>
-        {selectedData?.map((entry, index) => (
-          <tr
-            key={index}
-            className={`${resolveColor(index)} px-6 py-4 w-screen max-w-xl ${
-              index === selectedData.length - 1 ? "rounded-b" : ""
-            }`}
-          >
-            <th className="w-48 py-4">{index + 1}</th>
-            <th className="w-48 py-4">{entry.name}</th>
-            <th className="w-48 py-4">{entry.score}</th>
+        <thead>
+          <tr className="dark:bg-dark-400 bg-gray-100 rounded ">
+            <th className="w-48 rounded-tl py-4">Rank</th>
+            <th className="w-48 py-4">Name</th>
+            <th className="w-48 py-4">Score</th>
+            <th className="w-24 rounded-tr py-4">Play it</th>
           </tr>
-        ))}
+        </thead>
+        <tbody>
+          {selectedData?.map((entry, index) => (
+            <React.Fragment key={index}>
+              <tr
+                className={`${resolveColor(
+                  index
+                )} px-6 py-4 w-screen max-w-xl ${
+                  index === selectedData.length - 1 ? "rounded-b" : ""
+                }`}
+              >
+                <th className="w-48 py-4">{index + 1}</th>
+                <th className="w-48 py-4">{entry.name}</th>
+                <th className="w-48 py-4">{entry.score}</th>
+                <th
+                  className="w-16 py-4"
+                  onClick={() => handleClick(entry.uuid, entry.layout)}
+                >
+                  {entry.layout && entry.uuid ? (
+                    <ReplyIcon className="w-8 mx-auto cursor-pointer" />
+                  ) : (
+                    <XCircleIcon className="w-8 mx-auto cursor-not-allowed" />
+                  )}
+                </th>
+              </tr>
+            </React.Fragment>
+          ))}
+        </tbody>
       </table>
     </>
   );
