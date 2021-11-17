@@ -30,6 +30,7 @@ This will serve the app on port 5000.
 Requirements:
 - Node.js 12 or above
 - MongoDB
+- Questionable sanity
 
 Navigate into the 'server' directory. This contains the code for a Node server that will serve the api requests. It can be build with the following commands:
 ```bash
