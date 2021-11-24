@@ -11,6 +11,7 @@ import React, { useEffect } from "react";
 import { useHistory } from "react-router";
 import { useAudioSettings } from "../hooks/useAudio";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { ReactComponent as AmogusIcon } from '../res/amogus.svg'
 
 const HeaderButtons = () => {
   const [theme, setTheme] = useLocalStorage<string>(
@@ -29,6 +30,10 @@ const HeaderButtons = () => {
   }, [setTheme, theme]);
 
   const history = useHistory();
+
+  const goHome = () => {
+    history.push("/");
+  }
 
   const goToHelp = () => {
     history.push("/tutorial");
@@ -50,6 +55,10 @@ const HeaderButtons = () => {
 
   return (
     <div className="sm:fixed top-2 left-2 flex gap-x-2">
+      <HeaderButton 
+        action={goHome}
+        icon={<AmogusIcon height={32} width={32} />}
+      />
       <HeaderButton
         action={swapTheme}
         icon={
