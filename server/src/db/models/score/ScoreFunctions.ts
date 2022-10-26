@@ -48,7 +48,7 @@ const statics = {
         submissions[board] = await this.find(
           {
             time: {
-              $gte: period === "daily" ? startOfDay(new Date()) : 0,
+              $gte: period === "daily" ? startOfDay(new Date()).getTime() : 0,
             },
           },
           {},
