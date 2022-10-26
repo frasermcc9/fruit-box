@@ -156,7 +156,7 @@ export class IOSingleton {
     });
 
     socket.on("requestQuickplay", async () => {
-      Log.info(`Requesting quickplay: ID: ${socket.id}`);
+      Log.trace(`Requesting quickplay: ID: ${socket.id}`);
 
       const gameManager = new BaseGameManager(12 * 17, 10, socket);
       this.quickplayMap.set(socket.id, gameManager);
@@ -170,12 +170,8 @@ export class IOSingleton {
     });
 
     socket.on("quickplaySubmission", async ({ mode, name }) => {
-      Log.info(`Submitting quickplay: ID: ${socket.id}`);
+      Log.trace(`Submitting quickplay: ID: ${socket.id}`);
       const game = this.quickplayMap.get(socket.id);
-
-      console.log(this.quickplayMap);
-
-      console.log(`game found: ${!!game}`);
 
       if (!game) return;
 
