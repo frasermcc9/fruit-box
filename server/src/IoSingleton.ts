@@ -170,7 +170,11 @@ export class IOSingleton {
     socket.on("quickplaySubmission", async ({ mode, name }) => {
       const game = this.quickplayMap.get(socket.id);
 
+      console.log(`game found: ${!!game}`);
+
       if (!game) return;
+
+      console.log(`mode: ${mode}`);
 
       if (mode !== "classic") {
         return;
