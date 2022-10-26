@@ -1,5 +1,6 @@
 import express, { Application, Router } from "express";
 import GlobalCollection from "../db/models/global/GlobalCollection";
+import ScoreCollection from "../db/models/score/ScoreCollection";
 
 export const initiateRoutes = (app: Application) => {
   const router = express.Router();
@@ -26,12 +27,11 @@ const stats = (router: Router) => {
   });
 
   router.get("/boards", async (req, res) => {
-    const globals = await GlobalCollection.getCollection();
-    const allTimeBoards = await globals.getSubmissions({
+    const allTimeBoards = await ScoreCollection.getSubmissions({
       boards: ["blitz", "classic"],
       period: "all",
     });
-    const dailyBoards = await globals.getSubmissions({
+    const dailyBoards = await ScoreCollection.getSubmissions({
       boards: ["blitz", "classic"],
       period: "daily",
     });

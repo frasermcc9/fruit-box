@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
-import participation from "../../../res/trophy/fail.webp";
-import bronze from "../../../res/trophy/bronze.png";
-import silver from "../../../res/trophy/silver.png";
-import gold from "../../../res/trophy/gold.png";
-import Modal from "../../components/Modal";
+import React, { useCallback } from "react";
 import { useIO } from "../../../hooks/useIO";
-import { useQuickplay } from "../../../hooks/useQuickplay";
+import bronze from "../../../res/trophy/bronze.png";
+import participation from "../../../res/trophy/fail.webp";
+import gold from "../../../res/trophy/gold.png";
+import silver from "../../../res/trophy/silver.png";
+import Modal from "../../components/Modal";
 
 interface Props {
   score: number;
@@ -15,23 +14,16 @@ interface Props {
 
 const QuickPlayOver: React.FC<Props> = ({ score, reset, mode }) => {
   const socket = useIO();
-  const [{ board }] = useQuickplay();
-
-  useEffect(() => {
-    socket?.emit("quickplayOver");
-  }, []);
 
   const [name, setName] = React.useState("");
 
-  const submitScore = () => {
+  const submitScore = useCallback(() => {
     socket?.emit("quickplaySubmission", {
-      score,
       mode,
       name,
-      layout: board.map((apple) => apple.getBaseValue()),
     });
     reset();
-  };
+  }, [mode, name, reset, socket]);
 
   const selectTrophy = (score: number) => {
     if (score < 50) {

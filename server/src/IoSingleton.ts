@@ -2,12 +2,13 @@ import Log from "@frasermcc/log";
 import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import GlobalCollection from "./db/models/global/GlobalCollection";
+import { BaseGameManager } from "./service/game-manager/BaseGameManager";
 import {
   GameManager,
   GameManagerFactory,
   PlayerFlag,
-} from "./GameManager/GameManager";
-import { ControlledSettings } from "./GameManager/GameSettings";
+} from "./service/game-manager/GameManager";
+import { ControlledSettings } from "./service/GameSettings";
 import { User } from "./types/User";
 
 export class IOSingleton {
@@ -16,6 +17,7 @@ export class IOSingleton {
   private gameManagerFactory?: GameManagerFactory;
 
   private gameMap: Map<string, GameManager> = new Map();
+  private quickplayMap: Map<string, BaseGameManager> = new Map();
 
   private socketMap: Map<Socket, User> = new Map();
 
@@ -153,19 +155,28 @@ export class IOSingleton {
       socket.removeAllListeners("move").removeAllListeners("timeOver");
     });
 
-    socket.on("quickplayOver", async () => {
-      await (await GlobalCollection.getCollection()).addSeconds(120);
+    socket.on("requestQuickplay", async () => {
+      const gameManager = new BaseGameManager(12 * 17, 10, socket);
+      this.quickplayMap.set(socket.id, gameManager);
+      socket.emit("quickplayResponse", {
+        values: gameManager.getGameState(),
+      });
+
+      gameManager.startGame();
+
+      socket.on("move", (indices: number[]) => gameManager.simulate(indices));
     });
 
-    socket.on("quickplaySubmission", async ({ mode, score, name, layout }) => {
-      Log.info(`${name} submitted a quickplay score of ${score}.`);
-      (await GlobalCollection.getCollection()).addSubmission({
-        board: mode,
-        name,
-        score,
-        time: Date.now(),
-        layout,
-      });
+    socket.on("quickplaySubmission", async ({ mode, name }) => {
+      const game = this.quickplayMap.get(socket.id);
+
+      if (!game) return;
+
+      if (mode !== "classic") {
+        return;
+      }
+
+      await game.post(name);
     });
 
     socket.on("disconnect", async () => {
@@ -176,6 +187,9 @@ export class IOSingleton {
       const duration = (end.getTime() - start!.getTime()) / 1000;
       Log.info(`A socket has disconnected after ${duration} seconds.`);
 
+      await (await GlobalCollection.getCollection()).addSeconds(duration);
+
+      this.quickplayMap.delete(socket.id);
       this.socketMap.delete(socket);
     });
   }

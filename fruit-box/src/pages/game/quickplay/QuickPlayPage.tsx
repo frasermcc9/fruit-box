@@ -27,6 +27,7 @@ import {
 } from "../../../hooks/useQuickplay";
 import { FrozenGenerator } from "./gen/FrozenGenerator";
 import { usePollingEffect } from "../../../hooks/usePollingEffect";
+import { useIO } from "../../../hooks/useIO";
 
 interface Props {
   goalValue?: number;
@@ -47,6 +48,8 @@ const QuickPlayInternal: React.FC<Props> = ({
 }) => {
   const { search } = useLocation();
 
+  const io = useIO();
+
   const [mode, detail] = useMemo(() => {
     const params = new URLSearchParams(search);
     let value = params.get("classic");
@@ -65,8 +68,11 @@ const QuickPlayInternal: React.FC<Props> = ({
   const [{ board, endTime, startTime }, setQuickplay] = useQuickplay();
 
   const appleValues = board;
-  const setAppleValues = (values: Entity[]) =>
-    setQuickplay((p) => ({ ...p, board: values }));
+
+  const setAppleValues = useCallback(
+    (values: Entity[]) => setQuickplay((p) => ({ ...p, board: values })),
+    [setQuickplay]
+  );
 
   const calcApples = useCallback(() => {
     if (mode === "replay") {
@@ -100,19 +106,37 @@ const QuickPlayInternal: React.FC<Props> = ({
     } else {
       return creator.getBoard();
     }
-  }, [appleCount, mode, goalValue, setQuickplay]);
+  }, [mode, appleCount, goalValue, detail, setQuickplay]);
 
   useEffect(() => {
-    const apples = calcApples();
-    setAppleValues(apples);
+    if (mode !== "classic") {
+      const apples = calcApples();
+      setAppleValues(apples);
 
-    const now = Date.now();
-    setQuickplay((p) => ({
-      ...p,
-      startTime: now,
-      endTime: now + 2 * 60000,
-    }));
-  }, []);
+      const now = Date.now();
+      setQuickplay((p) => ({
+        ...p,
+        startTime: now,
+        endTime: now + 2 * 60000,
+      }));
+    } else {
+      io?.emit("requestQuickplay");
+
+      io?.once("quickplayResponse", ({ values }: { values: number[] }) => {
+        const board = new BoardCreator({ replay: values }).getBoard();
+        setQuickplay((p) => ({
+          ...p,
+          board,
+          startTime: Date.now(),
+          endTime: Date.now() + 2 * 60000,
+        }));
+      });
+
+      io?.once("quickplayOver", ({ score }) => {
+        setScore(score);
+      });
+    }
+  }, [calcApples, io, mode, setAppleValues, setQuickplay]);
 
   const [score, setScore] = useState(0);
 
@@ -150,6 +174,7 @@ const QuickPlayInternal: React.FC<Props> = ({
       const total = getSum(visibleApples);
 
       const selectedApples = visibleApples.map((apple) => apple.props.apple);
+      const appleIds = visibleApples.map((apple) => apple.props.id);
       const newValues = appleValues.slice();
 
       if (
@@ -169,13 +194,23 @@ const QuickPlayInternal: React.FC<Props> = ({
         }
         scoreToAdd += bonusScore.reduce((a, b) => a + b, 0);
 
+        io?.emit("move", appleIds);
+
         setAppleValues(newValues);
         setScore((old) => old + scoreToAdd);
         playPop();
         createScoreIncrease("board-score", scoreToAdd);
       }
     },
-    [appleValues, getSum, getVisibleApples, goalValue, playPop, setAppleValues]
+    [
+      appleValues,
+      getSum,
+      getVisibleApples,
+      goalValue,
+      io,
+      playPop,
+      setAppleValues,
+    ]
   );
 
   useLayoutEffect(() => {
@@ -245,7 +280,9 @@ const QuickPlayInternal: React.FC<Props> = ({
         appleRenderer={
           <>
             {appleValues.map((entity, key) => {
-              return <SelectableQuickplayApple apple={entity} key={key} />;
+              return (
+                <SelectableQuickplayApple apple={entity} key={key} id={key} />
+              );
             })}
           </>
         }

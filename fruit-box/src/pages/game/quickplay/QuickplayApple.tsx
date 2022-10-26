@@ -5,6 +5,7 @@ import { Entity } from "./modifier";
 
 interface BaseProps {
   apple: Entity;
+  id: number;
 }
 
 type QuickplayAppleProps = TSelectableItemProps & BaseProps;

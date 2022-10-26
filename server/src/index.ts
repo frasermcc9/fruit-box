@@ -1,12 +1,16 @@
 import cors from "cors";
 import express from "express";
 import { Server } from "socket.io";
-import { gameManagerFactory } from "./GameManager/GameManager";
+import { gameManagerFactory } from "./service/game-manager/GameManager";
 import { IOSingleton } from "./IoSingleton";
 import Dotenv from "dotenv";
 import Log from "@frasermcc/log";
 import { connect } from "./db/Connect";
 import { initiateRoutes } from "./routes";
+import { MigrationRunner } from "./db/migrations/migration-base";
+import { ClassicScoreMigration } from "./db/migrations/classic-score-migration";
+
+new MigrationRunner([new ClassicScoreMigration()]).run();
 
 Dotenv.config({
   path: `.env.${process.env.NODE_ENV}`,

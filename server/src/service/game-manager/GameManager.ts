@@ -1,9 +1,9 @@
 import crypto from "crypto";
 import { Server, Socket } from "socket.io";
-import { Player, PlayerDetail } from "../Player";
+import { Player, PlayerDetail } from "../../Player";
 import Log from "@frasermcc/log";
-import { TimeManager } from "../util/TimeManager";
-import { ControlledSettings } from "./GameSettings";
+import { TimeManager } from "../../util/TimeManager";
+import { ControlledSettings } from "../GameSettings";
 
 export class GameManagerImpl implements GameManager {
   private values: number[] = [];
