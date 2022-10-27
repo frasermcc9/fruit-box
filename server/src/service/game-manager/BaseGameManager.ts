@@ -1,6 +1,8 @@
-import { Server, Socket } from "socket.io";
-import GlobalCollection from "../../db/models/global/GlobalCollection";
+import { Socket } from "socket.io";
 import ScoreCollection from "../../db/models/score/ScoreCollection";
+import { WeightedRandom } from "../random/weighted-random";
+
+const rng = new WeightedRandom([100, 100, 100, 100, 100, 100, 100, 100, 100]);
 
 export class BaseGameManager {
   private originalValues: number[] = [];
@@ -16,7 +18,7 @@ export class BaseGameManager {
     private readonly playerSocket: Socket
   ) {
     for (let i = 0; i < gameSize; i++) {
-      this.values.push(1 + ~~(Math.random() * (goal - 1)));
+      this.values.push(rng.next() + 1);
     }
     this.originalValues = this.values.slice();
   }
