@@ -1,0 +1,20 @@
+{
+  "name": "apple-game",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "nx serve",
+    "build": "nx build",
+    "test": "nx test"
+  },
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "@nrwl/cli": "15.0.4",
+    "@nrwl/nx-cloud": "latest",
+    "@nrwl/workspace": "15.0.4",
+    "nx": "15.0.4",
+    "prettier": "^2.6.2",
+    "typescript": "~4.8.2"
+  }
+}
