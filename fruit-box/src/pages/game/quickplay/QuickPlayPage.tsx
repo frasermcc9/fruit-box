@@ -256,7 +256,8 @@ const QuickPlayInternal: React.FC<Props> = ({
         return ((now - start) / (end - start)) * 100;
       };
       const percent = calculateTimePercent();
-      if (percent > 100) {
+      console.log(appleValues.length);
+      if (appleValues.length > 0 && percent > 100) {
         setPlaying(false);
       }
       setPercent(percent);
