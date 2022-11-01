@@ -10,6 +10,9 @@ export const useIOInitializer = (addr: string) => {
   useEffect(() => {
     const socket = io(addr);
     setSocket(socket);
+
+    window.addEventListener("unload", () => socket.disconnect());
+
     return () => {
       socket.disconnect();
     };
