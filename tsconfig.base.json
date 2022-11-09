@@ -14,7 +14,15 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@apple-game/constants": ["libs/constants/src/index.ts"],
+      "@apple-game/generation": ["libs/generation/src/index.ts"],
+      "@apple-game/messages": ["libs/messages/src/index.ts"],
+      "@apple-game/random": ["libs/random/src/index.ts"],
+      "@apple-game/react-components": ["libs/react-components/src/index.ts"],
+      "@apple-game/react-drag-select": ["libs/react-drag-select/src/index.ts"],
+      "@apple-game/react-hooks": ["libs/react-hooks/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -1,0 +1,22 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/tsconfig.**": true,
+    "**/jest.config.ts": true,
+    "**/.browserslistrc": true,
+    "**/.babelrc": true,
+    "**/.eslintrc.**": true,
+    "jest.preset.js": true,
+    "babel.config.json": true,
+    ".editorconfig": true,
+    "**/postcss.config.js": true,
+    "**/cypress.config.ts": true,
+    "libs/**/package.json": true
+  },
+  "cSpell.words": ["Freeplay", "Quickplay"]
+}

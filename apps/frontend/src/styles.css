@@ -1,0 +1,37 @@
+@tailwind components;
+@tailwind base;
+@tailwind utilities;
+
+#root {
+  @apply font-['Inter'];
+}
+
+html {
+  @apply min-h-screen transition-colors;
+}
+
+html[data-theme='theme_light'] {
+  @apply bg-zinc-50 text-zinc-800;
+}
+
+html[data-theme='theme_dark'] {
+  @apply bg-zinc-900 text-zinc-50;
+}
+
+.selectable-selectbox {
+  box-shadow: 0 0 1px 4px rgba(9, 122, 235, 1);
+  border-radius: 0.25rem;
+}
+
+.in-selection-mode > .selectable-selectbox {
+  box-shadow: none;
+  border-radius: 0.25rem;
+}
+
+.selectable-selectbox-partial {
+  background-color: rgba(255, 221, 0, 0.4);
+}
+
+.selectable-selectbox-valid {
+  background-color: rgba(255, 50, 0, 0.4);
+}

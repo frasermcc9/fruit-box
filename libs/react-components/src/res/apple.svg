@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+      <style>
+          .selected {
+              stroke-width: 2px;
+              stroke: yellow;
+          }
+      </style>
+  </defs>
+  <g>
+      <rect fill="none" width="32" height="32" id="rect6" />
+  </g>
+  <path id="apple-path"
+      d="M 22,8 C 19.679,8 18.035,9.009 17.062,9.857 17.47,5.698 20,4 20,4 L 18,3 C 18,3 15.42,5.587 15.048,9.955 14.09,9.089 12.411,8 10,8 6,8 3,11 4,17 c 1.315,7.892 5,11 8,11 2,0 4,-2 4,-2 0,0 2,2 4,2 3,0 6.685,-3.108 8,-11 1,-6 -2,-9 -6,-9 z" />
+</svg>
