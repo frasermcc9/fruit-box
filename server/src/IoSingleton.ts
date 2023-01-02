@@ -155,10 +155,10 @@ export class IOSingleton {
       socket.removeAllListeners("move").removeAllListeners("timeOver");
     });
 
-    socket.on("requestQuickplay", async () => {
+    socket.on("requestQuickplay", async ({ appleCount }) => {
       Log.trace(`Requesting quickplay: ID: ${socket.id}`);
 
-      const gameManager = new BaseGameManager(10 * 17, 10, socket);
+      const gameManager = new BaseGameManager(appleCount, 10, socket);
       this.quickplayMap.set(socket.id, gameManager);
       socket.emit("quickplayResponse", {
         values: gameManager.getGameState(),

@@ -37,14 +37,14 @@ interface Props {
 const QuickPlayPage: React.FC = () => {
   return (
     <QuickplayContextProvider>
-      <QuickPlayInternal />
+      <QuickPlayInternal appleCount={200} />
     </QuickplayContextProvider>
   );
 };
 
 const QuickPlayInternal: React.FC<Props> = ({
   goalValue = 10,
-  appleCount = 170,
+  appleCount = 200,
 }) => {
   const { search } = useLocation();
 
@@ -85,6 +85,8 @@ const QuickPlayInternal: React.FC<Props> = ({
 
     const creator = new BoardCreator({ appleCount, target: goalValue });
 
+    console.log(appleCount);
+
     if (mode === "blitz") {
       creator
         .applyModifier(
@@ -120,7 +122,7 @@ const QuickPlayInternal: React.FC<Props> = ({
         endTime: now + 2 * 60000,
       }));
     } else {
-      io?.emit("requestQuickplay");
+      io?.emit("requestQuickplay", { appleCount });
 
       io?.once("quickplayResponse", ({ values }: { values: number[] }) => {
         const board = new BoardCreator({ replay: values }).getBoard();
@@ -136,7 +138,7 @@ const QuickPlayInternal: React.FC<Props> = ({
         setScore(score);
       });
     }
-  }, [calcApples, io, mode, setAppleValues, setQuickplay]);
+  }, [appleCount, calcApples, io, mode, setAppleValues, setQuickplay]);
 
   const [score, setScore] = useState(0);
 
@@ -256,7 +258,7 @@ const QuickPlayInternal: React.FC<Props> = ({
         return ((now - start) / (end - start)) * 100;
       };
       const percent = calculateTimePercent();
-      console.log(appleValues.length);
+
       if (appleValues.length > 0 && percent > 100) {
         setPlaying(false);
       }
@@ -274,7 +276,7 @@ const QuickPlayInternal: React.FC<Props> = ({
         playing={playing}
         score={score}
         selectionRef={selectionRef}
-        cols={17}
+        cols={20}
         rows={10}
         average={average}
         percentage={100 - percent}
