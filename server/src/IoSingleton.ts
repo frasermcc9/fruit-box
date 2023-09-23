@@ -32,7 +32,7 @@ export class IOSingleton {
       const ip =
         socket.handshake.headers["x-forwarded-for"] || socket.handshake.address;
 
-      Log.info(`Socket from ${ip} connected.`);
+      Log.info(`Socket from ${ip} connected. ID=${socket.id}`);
       this.onConnection(socket);
     });
   }
