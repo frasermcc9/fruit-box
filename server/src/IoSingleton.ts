@@ -161,7 +161,12 @@ export class IOSingleton {
     socket.on("requestQuickplay", async ({ appleCount }) => {
       Log.trace(`Requesting quickplay: ID: ${socket.id}`);
 
-      const gameManager = new BaseGameManager(appleCount, 10, socket);
+      const gameManager = new BaseGameManager(
+        appleCount,
+        10,
+        socket,
+        socket.id
+      );
       this.quickplayMap.set(socket.id, gameManager);
       socket.emit("quickplayResponse", {
         values: gameManager.getGameState(),
