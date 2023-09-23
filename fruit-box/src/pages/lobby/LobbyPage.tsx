@@ -90,8 +90,8 @@ const LobbyPage: React.FC<Props> = () => {
         <div className="font-bold md:text-4xl text-2xl text-center">
           <div className="relative">
             Apple Game
-            <div className="transform rotate-[20deg] text-red-500 absolute right-32 -top-4">
-              200
+            <div className="transform rotate-[-20deg] text-red-500 absolute right-16 top-6 text-xl">
+              Less (classic) Cheating!
             </div>
           </div>
         </div>
