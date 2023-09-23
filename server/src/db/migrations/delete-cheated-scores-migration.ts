@@ -11,10 +11,7 @@ export class DeleteCheatedScoresMigration implements MigrationBase {
     });
     const scores = collection.classic;
 
-    const canActivate =
-      (scores?.some((score) => score.score > 200) ||
-        scores?.some((score) => score.score === 197)) ??
-      false;
+    const canActivate = scores?.some((score) => score.score > 200) ?? false;
 
     Log.warn(`DeleteCheatedScoresMigration willRun: ${canActivate}`);
 
@@ -37,11 +34,6 @@ export class DeleteCheatedScoresMigration implements MigrationBase {
       const { score: scoreNum, uuid } = score;
 
       if (uuid === undefined) {
-        continue;
-      }
-
-      if (scoreNum === 197) {
-        await ScoreCollection.deleteSubmissions({ uuid });
         continue;
       }
 
