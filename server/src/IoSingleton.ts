@@ -196,7 +196,9 @@ export class IOSingleton {
       const start = this.socketMap.get(socket)?.startTime;
       const end = new Date();
       const duration = (end.getTime() - start!.getTime()) / 1000;
-      Log.info(`A socket has disconnected after ${duration} seconds.`);
+      Log.info(
+        `Socket '${socket.id}' has disconnected after '${duration}' seconds.`
+      );
 
       await (await GlobalCollection.getCollection()).addSeconds(duration);
 

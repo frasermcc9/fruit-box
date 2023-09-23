@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import ScoreCollection from "../../db/models/score/ScoreCollection";
 import { WeightedRandom } from "../random/weighted-random";
 import Log from "@frasermcc/log";
+import { ClassicCheatEngine } from "./ClassicCheatEngine";
 
 const rng = new WeightedRandom([100, 100, 100, 100, 100, 100, 100, 100, 100]);
 
@@ -12,6 +13,7 @@ export class BaseGameManager {
   private score = 0;
 
   private active = false;
+  private cheatEngine: ClassicCheatEngine;
 
   constructor(
     gameSize: number,
@@ -23,6 +25,12 @@ export class BaseGameManager {
       this.values.push(rng.next() + 1);
     }
     this.originalValues = this.values.slice();
+
+    this.cheatEngine = new ClassicCheatEngine({
+      goal,
+      originalBoard: this.originalValues,
+      socketId: this.socketId ?? "",
+    });
   }
 
   getGameState(): number[] {
@@ -30,29 +38,24 @@ export class BaseGameManager {
   }
 
   simulate(selectedIndices: number[]): void {
-    if (!this.active) {
-      return;
-    }
+    if (!this.active) return;
 
-    if (selectedIndices.some((idx) => this.values[idx] === 0)) {
-      Log.info(`${this.socketId}: Invalid move, potentially a cheat.`);
-      return;
-    }
+    const isValidMove = this.cheatEngine.checkMove(
+      this.values,
+      selectedIndices
+    );
 
-    const valid =
-      selectedIndices.reduce((acc, idx) => acc + this.values[idx], 0) ===
-      this.goal;
+    if (!isValidMove) return;
 
-    if (!valid) {
-      Log.info(`${this.socketId}: Invalid move, potentially a cheat.`);
-      return;
-    }
+    const nonZeroIndices = selectedIndices.filter(
+      (index) => this.values[index] !== 0
+    );
 
-    for (const index of selectedIndices) {
+    for (const index of nonZeroIndices) {
       this.values[index] = 0;
     }
 
-    this.score += selectedIndices.length;
+    this.score += nonZeroIndices.length;
     Log.info(`${this.socketId}: Score Updated to ${this.score}.`);
   }
 
@@ -64,7 +67,10 @@ export class BaseGameManager {
     this.playerSocket.emit("quickplayStart", { values: this.getGameState() });
     this.active = true;
 
-    await new Promise<void>((res) => setTimeout(() => res(), 122 * 1000));
+    const twoMinutesAndBuffer = 122 * 1000;
+    await new Promise<void>((res) =>
+      setTimeout(() => res(), twoMinutesAndBuffer)
+    );
 
     this.active = false;
     this.end();
@@ -73,6 +79,8 @@ export class BaseGameManager {
   end(): void {
     this.playerSocket.emit("quickplayEnd", { score: this.getScore() });
     this.playerSocket.removeAllListeners("move");
+
+    Log.info(`${this.socketId}: Game ended with score ${this.score}.`);
   }
 
   async post(name: string): Promise<void> {
