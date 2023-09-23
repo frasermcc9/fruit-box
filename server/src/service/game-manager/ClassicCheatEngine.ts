@@ -4,6 +4,7 @@ export interface ClassicCheatEngineProps {
   originalBoard: number[];
   socketId: string;
   goal: number;
+  validDimensions: Dimensions[];
 }
 
 export interface Dimensions {
@@ -15,27 +16,45 @@ export class ClassicCheatEngine {
   private readonly originalBoard: number[];
   private readonly socketId: string;
   private readonly goal: number;
+  private readonly validDimensions: Dimensions[];
 
-  constructor({ goal, originalBoard, socketId }: ClassicCheatEngineProps) {
+  constructor({
+    goal,
+    originalBoard,
+    socketId,
+    validDimensions,
+  }: ClassicCheatEngineProps) {
     this.originalBoard = originalBoard;
     this.socketId = socketId;
     this.goal = goal;
+    this.validDimensions = validDimensions;
   }
 
-  public checkMove(
+  public getValidIndices(
     currentBoard: number[],
     selectedIndices: number[],
     dimensions: Dimensions
-  ): boolean {
+  ): number[] {
     Log.info(
       `[ClassicCheatEngine]: ${this.socketId}: Checking move: ${selectedIndices}`
     );
+
+    if (
+      !this.validDimensions.some(
+        (d) => d.x === dimensions.x && d.y === dimensions.y
+      )
+    ) {
+      Log.warn(
+        `[ClassicCheatEngine]: ${this.socketId}: Invalid dimensions (${dimensions.x}x${dimensions.y}).`
+      );
+      return [];
+    }
 
     if (selectedIndices.length > this.originalBoard.length) {
       Log.warn(
         `[ClassicCheatEngine]: ${this.socketId}: Selected indices greater than board size.`
       );
-      return false;
+      return [];
     }
 
     const valid = this.checkBoundingBox(
@@ -48,10 +67,10 @@ export class ClassicCheatEngine {
       Log.warn(
         `[ClassicCheatEngine]: ${this.socketId}: Selected indices do not sum to goal.`
       );
-      return false;
+      return [];
     }
 
-    return true;
+    return selectedIndices.filter((index) => currentBoard[index] !== 0);
   }
 
   private checkBoundingBox(

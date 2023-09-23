@@ -30,6 +30,10 @@ export class BaseGameManager {
       goal,
       originalBoard: this.originalValues,
       socketId: this.socketId ?? "",
+      validDimensions: [
+        { x: 20, y: 10 },
+        { x: 10, y: 20 },
+      ],
     });
   }
 
@@ -43,23 +47,19 @@ export class BaseGameManager {
 
     if (!this.active) return Log.warn(`${this.socketId}: Game is not active.`);
 
-    const isValidMove = this.cheatEngine.checkMove(
+    const validIndices = this.cheatEngine.getValidIndices(
       this.values,
       selectedIndices,
       boardDimensions
     );
 
-    if (!isValidMove) return;
+    if (!validIndices || validIndices.length === 0) return;
 
-    const nonZeroIndices = selectedIndices.filter(
-      (index) => this.values[index] !== 0
-    );
-
-    for (const index of nonZeroIndices) {
+    for (const index of validIndices) {
       this.values[index] = 0;
     }
 
-    this.score += nonZeroIndices.length;
+    this.score += validIndices.length;
     Log.info(`${this.socketId}: Score Updated to ${this.score}.`);
   }
 
