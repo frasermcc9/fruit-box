@@ -34,6 +34,8 @@ export class IOSingleton {
         socket.handshake.headers["X-Forwarded-For"] ||
         socket.handshake.address;
 
+      Log.info(JSON.stringify(socket.handshake.headers));
+
       Log.info(`Socket from ${ip} connected.`);
       this.onConnection(socket);
     });
