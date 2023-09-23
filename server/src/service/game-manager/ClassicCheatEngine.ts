@@ -36,7 +36,7 @@ export class ClassicCheatEngine {
     dimensions: Dimensions
   ): number[] {
     Log.info(
-      `[ClassicCheatEngine]: ${this.socketId}: Checking move: ${selectedIndices}`
+      `[ClassicCheatEngine]: ${this.socketId}: Checking move: ${selectedIndices} on (${dimensions.x}x${dimensions.y}) board.`
     );
 
     if (
