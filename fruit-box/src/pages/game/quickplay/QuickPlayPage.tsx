@@ -28,6 +28,7 @@ import {
 import { FrozenGenerator } from "./gen/FrozenGenerator";
 import { usePollingEffect } from "../../../hooks/usePollingEffect";
 import { useIO } from "../../../hooks/useIO";
+import { useMediaQuery } from "../../../hooks/useMediaQuery";
 
 interface Props {
   goalValue?: number;
@@ -74,6 +75,14 @@ const QuickPlayInternal: React.FC<Props> = ({
     [setQuickplay]
   );
 
+  const horizontal = useMediaQuery("(orientation: landscape)", true, false);
+  const dimensions = useMemo(() => {
+    if (horizontal) {
+      return { x: 20, y: 10 };
+    }
+    return { x: 10, y: 20 };
+  }, [horizontal]);
+
   const calcApples = useCallback(() => {
     if (mode === "replay") {
       const replay = sessionStorage.getItem(detail ?? "");
@@ -84,8 +93,6 @@ const QuickPlayInternal: React.FC<Props> = ({
     }
 
     const creator = new BoardCreator({ appleCount, target: goalValue });
-
-    console.log(appleCount);
 
     if (mode === "blitz") {
       creator
@@ -196,7 +203,7 @@ const QuickPlayInternal: React.FC<Props> = ({
         }
         scoreToAdd += bonusScore.reduce((a, b) => a + b, 0);
 
-        io?.emit("move", appleIds);
+        io?.emit("move", appleIds, dimensions);
 
         setAppleValues(newValues);
         setScore((old) => old + scoreToAdd);
@@ -212,6 +219,7 @@ const QuickPlayInternal: React.FC<Props> = ({
       io,
       playPop,
       setAppleValues,
+      dimensions,
     ]
   );
 

@@ -10,6 +10,7 @@ import {
 } from "./service/game-manager/GameManager";
 import { ControlledSettings } from "./service/GameSettings";
 import { User } from "./types/User";
+import { Dimensions } from "./service/game-manager/ClassicCheatEngine";
 
 export class IOSingleton {
   private static instance: IOSingleton;
@@ -174,7 +175,9 @@ export class IOSingleton {
 
       gameManager.startGame();
 
-      socket.on("move", (indices: number[]) => gameManager.simulate(indices));
+      socket.on("move", (indices: number[], dimensions: Dimensions) =>
+        gameManager.simulate(indices, dimensions)
+      );
     });
 
     socket.on("quickplaySubmission", async ({ mode, name }) => {

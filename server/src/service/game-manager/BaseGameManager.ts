@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import ScoreCollection from "../../db/models/score/ScoreCollection";
 import { WeightedRandom } from "../random/weighted-random";
 import Log from "@frasermcc/log";
-import { ClassicCheatEngine } from "./ClassicCheatEngine";
+import { ClassicCheatEngine, Dimensions } from "./ClassicCheatEngine";
 
 const rng = new WeightedRandom([100, 100, 100, 100, 100, 100, 100, 100, 100]);
 
@@ -37,12 +37,16 @@ export class BaseGameManager {
     return this.values.slice();
   }
 
-  simulate(selectedIndices: number[]): void {
-    if (!this.active) return;
+  simulate(selectedIndices: number[], boardDimensions: Dimensions): void {
+    if (!boardDimensions)
+      return Log.warn(`${this.socketId}: Board dimensions not provided.`);
+
+    if (!this.active) return Log.warn(`${this.socketId}: Game is not active.`);
 
     const isValidMove = this.cheatEngine.checkMove(
       this.values,
-      selectedIndices
+      selectedIndices,
+      boardDimensions
     );
 
     if (!isValidMove) return;
