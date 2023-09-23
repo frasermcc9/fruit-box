@@ -30,11 +30,7 @@ export class IOSingleton {
   ) {
     this.io.on("connection", (socket) => {
       const ip =
-        socket.handshake.headers["x-forwarded-for"] ||
-        socket.handshake.headers["X-Forwarded-For"] ||
-        socket.handshake.address;
-
-      Log.info(JSON.stringify(socket.handshake.headers));
+        socket.handshake.headers["x-forwarded-for"] || socket.handshake.address;
 
       Log.info(`Socket from ${ip} connected.`);
       this.onConnection(socket);
