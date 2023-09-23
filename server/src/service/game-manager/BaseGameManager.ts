@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import ScoreCollection from "../../db/models/score/ScoreCollection";
 import { WeightedRandom } from "../random/weighted-random";
+import Log from "@frasermcc/log";
 
 const rng = new WeightedRandom([100, 100, 100, 100, 100, 100, 100, 100, 100]);
 
@@ -31,6 +32,12 @@ export class BaseGameManager {
     if (!this.active) {
       return;
     }
+
+    if (selectedIndices.some((idx) => this.values[idx] === 0)) {
+      Log.info("Invalid move, potentially a cheat.");
+      return;
+    }
+
     const valid =
       selectedIndices.reduce((acc, idx) => acc + this.values[idx], 0) ===
       this.goal;
@@ -43,6 +50,7 @@ export class BaseGameManager {
       this.values[index] = 0;
     }
     this.score += selectedIndices.length;
+    Log.info(`New total score: ${this.score}`);
   }
 
   getScore(): number {
@@ -65,6 +73,9 @@ export class BaseGameManager {
   }
 
   async post(name: string): Promise<void> {
+    if (this.score > this.originalValues.length) {
+      return Log.error("Score is greater than the number of apples");
+    }
     await ScoreCollection.addSubmission({
       board: "classic",
       name,

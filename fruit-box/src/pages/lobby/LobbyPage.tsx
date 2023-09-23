@@ -88,7 +88,12 @@ const LobbyPage: React.FC<Props> = () => {
     <>
       <div className="w-full mx-auto max-w-xl px-4 flex flex-col justify-center mt-8 md:h-screen md:mt-0 gap-y-8 dark:text-gray-100 mb-10 md:mb-0">
         <div className="font-bold md:text-4xl text-2xl text-center">
-          Welcome to the Lobby
+          <div className="relative">
+            Apple Game
+            <div className="transform rotate-[20deg] text-red-500 absolute right-32 -top-4">
+              200
+            </div>
+          </div>
         </div>
         {code === "" ? (
           <div className="flex flex-col w-full">

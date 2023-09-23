@@ -9,8 +9,12 @@ import { connect } from "./db/Connect";
 import { initiateRoutes } from "./routes";
 import { MigrationRunner } from "./db/migrations/migration-base";
 import { ClassicScoreMigration } from "./db/migrations/classic-score-migration";
+import { DeleteCheatedScoresMigration } from "./db/migrations/delete-cheated-scores-migration";
 
-new MigrationRunner([new ClassicScoreMigration()]).run();
+new MigrationRunner([
+  new ClassicScoreMigration(),
+  new DeleteCheatedScoresMigration(),
+]).run();
 
 Dotenv.config({
   path: `.env.${process.env.NODE_ENV}`,

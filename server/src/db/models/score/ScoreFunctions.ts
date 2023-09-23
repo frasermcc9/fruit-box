@@ -58,6 +58,17 @@ const statics = {
     }
     return submissions;
   },
+
+  async deleteSubmissions(
+    this: ScoreModel,
+    { uuid }: { uuid: string }
+  ): Promise<void> {
+    const submission = await this.findOne({ uuid });
+    if (!submission) {
+      return Log.error(`Could not find submission with uuid ${uuid}`);
+    }
+    await submission.delete();
+  },
 };
 
 const methods = {};

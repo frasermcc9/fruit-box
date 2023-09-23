@@ -30,4 +30,8 @@ export interface ScoreModel extends Model<ScoreDocument> {
     this: ScoreModel,
     { boards, period }: { boards: T[]; period: string }
   ): Promise<{ [K in T]?: { name: string; score: number }[] }>;
+  deleteSubmissions(
+    this: ScoreModel,
+    { uuid }: { uuid: string }
+  ): Promise<void>;
 }
