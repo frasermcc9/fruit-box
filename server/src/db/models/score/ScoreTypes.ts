@@ -29,7 +29,7 @@ export interface ScoreModel extends Model<ScoreDocument> {
   getSubmissions<T extends string>(
     this: ScoreModel,
     { boards, period }: { boards: T[]; period: string }
-  ): Promise<{ [K in T]?: { name: string; score: number }[] }>;
+  ): Promise<{ [K in T]?: { name: string; score: number; uuid?: string }[] }>;
   deleteSubmissions(
     this: ScoreModel,
     { uuid }: { uuid: string }

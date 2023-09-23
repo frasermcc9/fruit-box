@@ -38,7 +38,12 @@ const statics = {
     { boards, period = "all" }: { boards: T[]; period: "all" | "daily" }
   ): Promise<{ [K in T]?: { name: string; score: number }[] }> {
     const submissions: {
-      [K in T]?: { name: string; score: number; time?: number }[];
+      [K in T]?: {
+        name: string;
+        score: number;
+        time?: number;
+        uuid?: string;
+      }[];
     } = {};
 
     for (const board of boards) {

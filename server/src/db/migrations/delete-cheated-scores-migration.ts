@@ -5,10 +5,13 @@ import { MigrationBase } from "./migration-base";
 
 export class DeleteCheatedScoresMigration implements MigrationBase {
   async canActivate(): Promise<boolean> {
-    const collection = await GlobalCollection.getCollection();
-    const scores = collection.classicBoard;
+    const collection = await ScoreCollection.getSubmissions({
+      boards: ["classic"],
+      period: "all",
+    });
+    const scores = collection.classic;
 
-    const canActivate = scores && scores.length > 0;
+    const canActivate = scores?.some((score) => score.score > 200) ?? false;
 
     Log.warn(`DeleteCheatedScoresMigration willRun: ${canActivate}`);
 
@@ -16,23 +19,27 @@ export class DeleteCheatedScoresMigration implements MigrationBase {
   }
 
   async exec(): Promise<void> {
-    const collection = await GlobalCollection.getCollection();
-    const scores = collection.classicBoard;
+    const collection = await ScoreCollection.getSubmissions({
+      boards: ["classic"],
+      period: "all",
+    });
+
+    const scores = collection.classic;
+
+    if (scores === undefined) {
+      return;
+    }
+
     for (const score of scores) {
-      const { uuid, score: scoreNum } = score;
+      const { score: scoreNum, uuid } = score;
 
       if (uuid === undefined) {
         continue;
       }
 
-      if (scoreNum <= 200) {
-        continue;
+      if (scoreNum >= 200) {
+        await ScoreCollection.deleteSubmissions({ uuid });
       }
-
-      await ScoreCollection.deleteSubmissions({ uuid });
     }
-
-    collection.classicBoard = [];
-    await collection.save();
   }
 }
