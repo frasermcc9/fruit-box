@@ -5,7 +5,7 @@ The game can be played [here](https://amogusapple.web.app/)
 
 ## Running Locally
 Requirements:
-- Node.js 12 or above
+- Node.js 14 or above
 
 ### Building the app
 
